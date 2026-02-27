@@ -4,6 +4,11 @@
   "description": "局域网实时观看编程 - Watch your teammates code live over LAN",
   "version": "0.0.3",
   "publisher": "live-code-viewer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bad-superman/live_code_viewer.git"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.74.0"
   },

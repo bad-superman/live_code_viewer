@@ -97,26 +97,44 @@ npm install
 2. 按 F5 或选择 “Run > Start Debugging”，会先执行 `npm run compile`，再启动扩展开发主机。
 3. 在新窗口中可测试 “Live Code: Start Hosting” 与 “Live Code: Connect to Host”。
 
-### 打包为 VSIX
+### 发布到 VS Code 扩展市场
+
+1. **安装发布工具 vsce**
+   ```bash
+   npm install -g @vscode/vsce
+   ```
+
+2. **注册 / 创建 Publisher**
+   - 打开 [Visual Studio Marketplace 发布者管理](https://marketplace.visualstudio.com/manage)
+   - 用 **Microsoft 账号**登录（没有则先注册）
+   - 点击 **“Create Publisher”**，填写 Publisher ID（如 `live-code-viewer`，需与 `package.json` 里 `publisher` 一致）、显示名称等
+
+3. **获取 Personal Access Token (PAT)**
+   - 在 [Azure DevOps 个人访问令牌](https://dev.azure.com/) 创建令牌：  
+     组织选 **“All accessible organizations”**，权限至少勾选 **Marketplace (Publish)** 下的 **Publish**
+   - 或从 [marketplace 管理页](https://marketplace.visualstudio.com/manage) 的 “Account settings” 里进入创建
+   - 创建后**复制并保存**令牌（只显示一次）
+
+4. **本地登录并发布**
+   ```bash
+   # 在项目根目录执行，按提示粘贴 PAT
+   vsce login live-code-viewer
+
+   # 发布（会自动执行 prepublish 打包、并执行 npm version）
+   vsce publish patch   # 0.0.3 -> 0.0.4，且需 Git 工作区干净
+   # 或指定版本：
+   vsce publish 0.0.4
+   ```
+   - 若 Git 有未提交修改，先 `git add && git commit` 再执行 `vsce publish`
+   - 首次发布成功后，扩展会出现在 [VS Code 扩展市场](https://marketplace.visualstudio.com/vscode)，用户可搜索 “Live Code Viewer” 安装
+
+### 打包为 VSIX（仅本地/离线安装）
 
 ```bash
-# 生成 .vsix 扩展包的步骤：
+npm run vscode:prepublish   # 会执行 npm run package 生成 dist/extension.js
 
-npm run vscode:prepublish   # （可选）会自动执行 npm run package，打包生成 dist/extension.js
-
-# 安装打包工具 vsce（如果未安装过）:
 npm install -g @vscode/vsce
-
-# 直接指定一个确切的版本号（会修改 package.json 并打包）
-vsce publish 1.2.3
-
-# 使用语义化版本规则自动升级（最常用）
-vsce publish patch   # 修复bug，版本号第三位+1 (1.0.0 -> 1.0.1)
-vsce publish minor   # 新增功能，版本号第二位+1 (1.0.0 -> 1.1.0)
-vsce publish major   # 大版本变更，版本号第一位+1 (1.0.0 -> 2.0.0)
-
-# 使用 vsce 生成 .vsix 文件：
-vsce package
+vsce package   # 生成 live-code-viewer-x.x.x.vsix，可“从 VSIX 安装”或分发
 ```
 
 ## 技术栈
