@@ -3,7 +3,7 @@
   "displayName": "Live Code Viewer",
   "description": "局域网实时观看编程 - Watch your teammates code live over LAN",
   "version": "0.0.4",
-  "publisher": "live-code-viewer",
+  "publisher": "RoyKou",
   "repository": {
     "type": "git",
     "url": "https://github.com/bad-superman/live_code_viewer.git"
