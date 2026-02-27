@@ -2,7 +2,7 @@
   "name": "live-code-viewer",
   "displayName": "Live Code Viewer",
   "description": "局域网实时观看编程 - Watch your teammates code live over LAN",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "live-code-viewer",
   "engines": {
     "vscode": "^1.74.0"
