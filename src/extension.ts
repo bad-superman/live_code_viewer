@@ -18,9 +18,14 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  context.subscriptions.push(
-    vscode.window.registerTreeDataProvider('liveCodeViewer', treeProvider)
-  );
+  const treeView = vscode.window.createTreeView('liveCodeViewer', {
+    treeDataProvider: treeProvider,
+    showCollapseAll: true,
+  });
+  context.subscriptions.push(treeView);
+
+  /** 供 Viewer 使用：同步主播当前文件时在树中展开并选中 */
+  const getTreeView = () => treeView;
 
   // ============ Host 命令 ============
 
@@ -97,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (!address) { return; }
 
-        viewer = new Viewer(documentProvider, treeProvider);
+        viewer = new Viewer(documentProvider, treeProvider, getTreeView());
         viewer.onDisconnect = () => {
           viewer = null;
         };

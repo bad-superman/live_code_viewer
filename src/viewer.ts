@@ -8,7 +8,7 @@ import {
   Selection,
 } from './protocol';
 import { LiveCodeDocumentProvider } from './virtualDocument';
-import { LiveCodeTreeDataProvider } from './liveCodeTree';
+import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from './liveCodeTree';
 
 /**
  * Viewer 模式 - 观众端
@@ -20,8 +20,11 @@ export class Viewer {
   private statusBarItem: vscode.StatusBarItem;
   private documentProvider: LiveCodeDocumentProvider;
   private treeProvider: LiveCodeTreeDataProvider | null;
+  private treeView: vscode.TreeView<LiveCodeTreeNode> | null;
 
   private currentUri: vscode.Uri | null = null;
+  /** 当前展示文件的相对路径，用于目录树 reveal */
+  private currentRelativePath: string | null = null;
   private currentEditor: vscode.TextEditor | null = null;
 
   /** 主播光标装饰 - 黄色竖线 */
@@ -36,10 +39,12 @@ export class Viewer {
 
   constructor(
     documentProvider: LiveCodeDocumentProvider,
-    treeProvider: LiveCodeTreeDataProvider | null = null
+    treeProvider: LiveCodeTreeDataProvider | null = null,
+    treeView: vscode.TreeView<LiveCodeTreeNode> | null = null
   ) {
     this.documentProvider = documentProvider;
     this.treeProvider = treeProvider;
+    this.treeView = treeView;
 
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Left,
@@ -121,6 +126,7 @@ export class Viewer {
     this.cleanupDecorations();
     this.currentEditor = null;
     this.currentUri = null;
+    this.currentRelativePath = null;
     this.treeProvider?.clear();
     this.disposables.forEach((d) => d.dispose());
     this.disposables = [];
@@ -159,6 +165,7 @@ export class Viewer {
           message.content,
           message.relativePath
         );
+        this.revealInTree(message.relativePath ?? this.currentRelativePath);
         if ('cursor' in message && message.cursor) {
           this.updateCursorDecoration(message.cursor);
         }
@@ -174,6 +181,7 @@ export class Viewer {
         }
         this.currentUri = null;
         this.currentEditor = null;
+        this.currentRelativePath = null;
         break;
 
       case MessageType.ContentChange:
@@ -192,6 +200,7 @@ export class Viewer {
 
       case MessageType.WorkspaceTree:
         this.treeProvider?.updatePaths(Array.isArray(message.paths) ? message.paths : []);
+        this.revealInTree(this.currentRelativePath);
         break;
 
       case MessageType.ViewerCount:
@@ -210,6 +219,7 @@ export class Viewer {
     relativePath?: string
   ): Promise<void> {
     const pathSegment = relativePath ?? path.basename(fileName);
+    this.currentRelativePath = pathSegment;
     const uri = vscode.Uri.parse(`livecode:/${pathSegment}`);
 
     this.documentProvider.updateContent(uri, content);
@@ -277,6 +287,18 @@ export class Viewer {
     if (this.currentEditor) {
       this.currentEditor.setDecorations(this.cursorDecorationType, []);
       this.currentEditor.setDecorations(this.selectionDecorationType, []);
+    }
+  }
+
+  /** 在目录树中展开并选中指定相对路径的节点，与主播当前打开文件同步 */
+  private revealInTree(relativePath: string | null | undefined): void {
+    if (!relativePath || !this.treeView || !this.treeProvider) return;
+    const node = this.treeProvider.getNodeByPath(relativePath);
+    if (node) {
+      this.treeView.reveal(node, { select: true, focus: false, expand: true }).then(
+        () => {},
+        () => {}
+      );
     }
   }
 

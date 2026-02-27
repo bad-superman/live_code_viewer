@@ -107,6 +107,14 @@ npm run vscode:prepublish   # （可选）会自动执行 npm run package，打�
 # 安装打包工具 vsce（如果未安装过）:
 npm install -g @vscode/vsce
 
+# 直接指定一个确切的版本号（会修改 package.json 并打包）
+vsce publish 1.2.3
+
+# 使用语义化版本规则自动升级（最常用）
+vsce publish patch   # 修复bug，版本号第三位+1 (1.0.0 -> 1.0.1)
+vsce publish minor   # 新增功能，版本号第二位+1 (1.0.0 -> 1.1.0)
+vsce publish major   # 大版本变更，版本号第一位+1 (1.0.0 -> 2.0.0)
+
 # 使用 vsce 生成 .vsix 文件：
 vsce package
 ```
