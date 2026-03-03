@@ -2,7 +2,7 @@
   "name": "live-code-viewer",
   "displayName": "Live Code Viewer",
   "description": "局域网实时观看编程 - Watch your teammates code live over LAN",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "RoyKou",
   "repository": {
     "type": "git",
@@ -34,6 +34,10 @@
       {
         "command": "live-code-viewer.stopHosting",
         "title": "Live Code: Stop Hosting"
+      },
+      {
+        "command": "live-code-viewer.copyAddress",
+        "title": "Live Code: Copy Broadcast Address"
       },
       {
         "command": "live-code-viewer.connect",

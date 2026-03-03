@@ -72,6 +72,30 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
+  // ============ 复制直播地址命令 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('live-code-viewer.copyAddress', () => {
+      if (!host) {
+        vscode.window.showWarningMessage('Live Code: 当前未在直播');
+        return;
+      }
+      
+      try {
+        const address = host.getBroadcastAddress();
+        vscode.env.clipboard.writeText(address).then(() => {
+          vscode.window.showInformationMessage(
+            `Live Code: 已复制直播地址 \"${address}\" 到剪贴板`
+          );
+        });
+      } catch (err: any) {
+        vscode.window.showErrorMessage(
+          `Live Code: 复制地址失败 - ${err.message}`
+        );
+      }
+    })
+  );
+
   // ============ Viewer 命令 ============
 
   context.subscriptions.push(

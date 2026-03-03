@@ -43,6 +43,7 @@ live-code-viewer/
 |------|------|
 | **Live Code: Start Hosting** | 开始直播（启动 WebSocket 服务） |
 | **Live Code: Stop Hosting** | 停止直播 |
+| **Live Code: Copy Broadcast Address** | **复制直播地址**到剪贴板（方便分享给观众） |
 | **Live Code: Connect to Host** | 连接到主播（输入 `IP:端口`，如 `192.168.1.100:3456`） |
 | **Live Code: Disconnect** | 断开与主播的连接 |
 
@@ -136,6 +137,16 @@ npm run vscode:prepublish   # 会执行 npm run package 生成 dist/extension.js
 npm install -g @vscode/vsce
 vsce package   # 生成 live-code-viewer-x.x.x.vsix，可“从 VSIX 安装”或分发
 ```
+
+## 版本历史
+
+### v0.0.6 (2026-03-03)
+- **新功能**：添加 "Live Code: Copy Broadcast Address" 命令，方便主播复制直播地址与观众分享
+
+### v0.0.5 (2026-02-27)
+- 基础功能：主播端和观众端的实时代码观看
+- 实时同步文件内容、光标位置、选区变化
+- 虚拟文档显示、状态栏观众计数
 
 ## 技术栈
 

@@ -270,7 +270,7 @@ export class Host {
     const ip = this.getLocalIP();
     this.statusBarItem.text =
       `$(broadcast) Live: ${ip}:${this.port} (${this.clients.size} 观众)`;
-    this.statusBarItem.tooltip = '点击停止直播';
+    this.statusBarItem.tooltip = `直播地址: ${ip}:${this.port} | 点击停止直播 | 使用命令"Live Code: Copy Broadcast Address"复制地址`;
     this.statusBarItem.command = 'live-code-viewer.stopHosting';
   }
 
@@ -285,6 +285,15 @@ export class Host {
       }
     }
     return '127.0.0.1';
+  }
+
+  /** 获取当前直播地址 */
+  getBroadcastAddress(): string {
+    if (!this.isRunning) {
+      throw new Error('Live Code: 直播未启动');
+    }
+    const ip = this.getLocalIP();
+    return `${ip}:${this.port}`;
   }
 
   dispose(): void {
