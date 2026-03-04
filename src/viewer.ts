@@ -6,9 +6,41 @@ import {
   LiveMessage,
   Position,
   Selection,
+  TerminalOpenMessage,
+  TerminalCloseMessage,
+  TerminalCommandMessage,
+  TerminalOutputMessage,
+  TerminalCommandEndMessage,
 } from './protocol';
 import { LiveCodeDocumentProvider } from './virtualDocument';
 import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from './liveCodeTree';
+
+/** 伪终端：在观众端原生终端面板中展示主播终端内容（只读） */
+class LiveCodePseudoterminal implements vscode.Pseudoterminal {
+  private writeEmitter = new vscode.EventEmitter<string>();
+  readonly onDidWrite = this.writeEmitter.event;
+
+  private closeEmitter = new vscode.EventEmitter<number | void>();
+  readonly onDidClose = this.closeEmitter.event;
+
+  open(): void {}
+  close(): void {}
+
+  /** 向终端写入文本（供外部调用） */
+  fire(data: string): void {
+    this.writeEmitter.fire(data);
+  }
+
+  /** 关闭此伪终端 */
+  shutdown(): void {
+    this.closeEmitter.fire();
+  }
+
+  dispose(): void {
+    this.writeEmitter.dispose();
+    this.closeEmitter.dispose();
+  }
+}
 
 /**
  * Viewer 模式 - 观众端
@@ -33,6 +65,9 @@ export class Viewer {
   private selectionDecorationType: vscode.TextEditorDecorationType;
 
   private disposables: vscode.Disposable[] = [];
+
+  /** 主播终端 ID → 观众端伪终端和 VS Code Terminal 实例 */
+  private terminalMap = new Map<number, { pty: LiveCodePseudoterminal; terminal: vscode.Terminal }>();
 
   /** 断开连接回调，通知外部清理引用 */
   private _onDisconnectCallback: (() => void) | null = null;
@@ -124,6 +159,7 @@ export class Viewer {
   private handleDisconnected(reason?: string): void {
     this.statusBarItem.hide();
     this.cleanupDecorations();
+    this.cleanupTerminals();
     this.currentEditor = null;
     this.currentUri = null;
     this.currentRelativePath = null;
@@ -204,6 +240,26 @@ export class Viewer {
         break;
 
       case MessageType.ViewerCount:
+        break;
+
+      case MessageType.TerminalOpen:
+        this.handleTerminalOpen(message);
+        break;
+
+      case MessageType.TerminalClose:
+        this.handleTerminalClose(message);
+        break;
+
+      case MessageType.TerminalCommand:
+        this.handleTerminalCommand(message);
+        break;
+
+      case MessageType.TerminalOutput:
+        this.handleTerminalOutput(message);
+        break;
+
+      case MessageType.TerminalCommandEnd:
+        this.handleTerminalCommandEnd(message);
         break;
     }
   }
@@ -311,6 +367,70 @@ export class Viewer {
       await vscode.window.showTextDocument(target.document, { preserveFocus: false });
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     }
+  }
+
+  /** 创建伪终端并在终端面板中显示 */
+  private handleTerminalOpen(msg: TerminalOpenMessage): void {
+    if (this.terminalMap.has(msg.terminalId)) { return; }
+
+    const pty = new LiveCodePseudoterminal();
+    const terminal = vscode.window.createTerminal({
+      name: `[Live] ${msg.name}`,
+      pty,
+    });
+    this.terminalMap.set(msg.terminalId, { pty, terminal });
+  }
+
+  private handleTerminalClose(msg: TerminalCloseMessage): void {
+    const entry = this.terminalMap.get(msg.terminalId);
+    if (!entry) { return; }
+    entry.pty.shutdown();
+    entry.pty.dispose();
+    this.terminalMap.delete(msg.terminalId);
+  }
+
+  private handleTerminalCommand(msg: TerminalCommandMessage): void {
+    const entry = this.ensureTerminal(msg.terminalId);
+    entry.pty.fire(`\x1b[1;32m$ ${msg.command}\x1b[0m\r\n`);
+    entry.terminal.show(true);
+  }
+
+  private handleTerminalOutput(msg: TerminalOutputMessage): void {
+    const entry = this.ensureTerminal(msg.terminalId);
+    const data = msg.data.replace(/\r?\n/g, '\r\n');
+    entry.pty.fire(data);
+  }
+
+  private handleTerminalCommandEnd(msg: TerminalCommandEndMessage): void {
+    const entry = this.terminalMap.get(msg.terminalId);
+    if (!entry) { return; }
+    if (msg.exitCode !== undefined && msg.exitCode !== 0) {
+      entry.pty.fire(`\x1b[1;31m[exit: ${msg.exitCode}]\x1b[0m\r\n`);
+    }
+  }
+
+  /** 确保终端存在，不存在时自动创建（处理连接前已有终端的情况） */
+  private ensureTerminal(terminalId: number): { pty: LiveCodePseudoterminal; terminal: vscode.Terminal } {
+    let entry = this.terminalMap.get(terminalId);
+    if (!entry) {
+      const pty = new LiveCodePseudoterminal();
+      const terminal = vscode.window.createTerminal({
+        name: `[Live] Terminal ${terminalId}`,
+        pty,
+      });
+      entry = { pty, terminal };
+      this.terminalMap.set(terminalId, entry);
+    }
+    return entry;
+  }
+
+  /** 清理所有观众端伪终端 */
+  private cleanupTerminals(): void {
+    for (const [, entry] of this.terminalMap) {
+      entry.pty.shutdown();
+      entry.pty.dispose();
+    }
+    this.terminalMap.clear();
   }
 
   dispose(): void {

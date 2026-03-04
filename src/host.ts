@@ -13,6 +13,11 @@ import {
   ContentChangeMessage,
   SelectionChangeMessage,
   ViewerCountMessage,
+  TerminalOpenMessage,
+  TerminalCloseMessage,
+  TerminalCommandMessage,
+  TerminalOutputMessage,
+  TerminalCommandEndMessage,
 } from './protocol';
 
 /**
@@ -28,6 +33,9 @@ export class Host {
   private disposables: vscode.Disposable[] = [];
   private port: number;
   private isRunning = false;
+
+  private terminalIdMap = new Map<vscode.Terminal, number>();
+  private nextTerminalId = 1;
 
   constructor(port: number = 3456) {
     this.port = port;
@@ -52,6 +60,7 @@ export class Host {
       this.sendWorkspaceTree(ws).catch((err) => {
         console.error('Live Code: 发送目录树失败', err);
       });
+      this.sendTerminalSync(ws);
       this.broadcastViewerCount();
 
       ws.on('close', () => {
@@ -72,6 +81,7 @@ export class Host {
 
     this.isRunning = true;
     this.registerEditorListeners();
+    this.registerTerminalListeners();
     this.updateStatusBar();
     this.statusBarItem.show();
 
@@ -97,6 +107,7 @@ export class Host {
     this.wss = null;
     this.server = null;
     this.isRunning = false;
+    this.terminalIdMap.clear();
 
     this.statusBarItem.hide();
     vscode.window.showInformationMessage('Live Code: 直播已停止');
@@ -249,6 +260,106 @@ export class Host {
     };
     this.broadcast(message);
     this.updateStatusBar();
+  }
+
+  /** 为终端分配 ID，如已存在则返回已有 ID */
+  private getOrAssignTerminalId(terminal: vscode.Terminal): number {
+    let id = this.terminalIdMap.get(terminal);
+    if (id === undefined) {
+      id = this.nextTerminalId++;
+      this.terminalIdMap.set(terminal, id);
+    }
+    return id;
+  }
+
+  /** 注册终端相关事件监听 */
+  private registerTerminalListeners(): void {
+    for (const terminal of vscode.window.terminals) {
+      this.getOrAssignTerminalId(terminal);
+    }
+
+    this.disposables.push(
+      vscode.window.onDidOpenTerminal((terminal) => {
+        const id = this.getOrAssignTerminalId(terminal);
+        const msg: TerminalOpenMessage = {
+          type: MessageType.TerminalOpen,
+          terminalId: id,
+          name: terminal.name,
+        };
+        this.broadcast(msg);
+      })
+    );
+
+    this.disposables.push(
+      vscode.window.onDidCloseTerminal((terminal) => {
+        const id = this.terminalIdMap.get(terminal);
+        if (id === undefined) { return; }
+        this.terminalIdMap.delete(terminal);
+        const msg: TerminalCloseMessage = {
+          type: MessageType.TerminalClose,
+          terminalId: id,
+        };
+        this.broadcast(msg);
+      })
+    );
+
+    this.disposables.push(
+      vscode.window.onDidStartTerminalShellExecution((e) => {
+        const id = this.getOrAssignTerminalId(e.terminal);
+        const command = e.execution.commandLine.value;
+        const cmdMsg: TerminalCommandMessage = {
+          type: MessageType.TerminalCommand,
+          terminalId: id,
+          command,
+        };
+        this.broadcast(cmdMsg);
+        this.streamExecutionOutput(id, e.execution);
+      })
+    );
+
+    this.disposables.push(
+      vscode.window.onDidEndTerminalShellExecution((e) => {
+        const id = this.terminalIdMap.get(e.terminal);
+        if (id === undefined) { return; }
+        const msg: TerminalCommandEndMessage = {
+          type: MessageType.TerminalCommandEnd,
+          terminalId: id,
+          exitCode: e.exitCode,
+        };
+        this.broadcast(msg);
+      })
+    );
+  }
+
+  /** 异步读取命令输出并逐块广播 */
+  private async streamExecutionOutput(
+    terminalId: number,
+    execution: vscode.TerminalShellExecution
+  ): Promise<void> {
+    try {
+      for await (const data of execution.read()) {
+        const msg: TerminalOutputMessage = {
+          type: MessageType.TerminalOutput,
+          terminalId,
+          data,
+        };
+        this.broadcast(msg);
+      }
+    } catch {
+      /* 终端可能已关闭，忽略读取错误 */
+    }
+  }
+
+  /** 向新连接的观众发送当前所有终端状态 */
+  private sendTerminalSync(ws: WebSocket): void {
+    for (const [terminal, id] of this.terminalIdMap) {
+      const msg: TerminalOpenMessage = {
+        type: MessageType.TerminalOpen,
+        terminalId: id,
+        name: terminal.name,
+      };
+      this.safeSend(ws, msg);
+    }
   }
 
   private broadcast(message: LiveMessage): void {

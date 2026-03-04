@@ -18,6 +18,16 @@ export enum MessageType {
   FileClose = 'fileClose',
   /** 主播工作区目录树（相对路径列表） */
   WorkspaceTree = 'workspaceTree',
+  /** 终端已打开 */
+  TerminalOpen = 'terminalOpen',
+  /** 终端已关闭 */
+  TerminalClose = 'terminalClose',
+  /** 终端命令开始执行 */
+  TerminalCommand = 'terminalCommand',
+  /** 终端输出数据（增量） */
+  TerminalOutput = 'terminalOutput',
+  /** 终端命令执行结束 */
+  TerminalCommandEnd = 'terminalCommandEnd',
 }
 
 export interface Position {
@@ -76,6 +86,35 @@ export interface ViewerCountMessage {
   count: number;
 }
 
+export interface TerminalOpenMessage {
+  type: MessageType.TerminalOpen;
+  terminalId: number;
+  name: string;
+}
+
+export interface TerminalCloseMessage {
+  type: MessageType.TerminalClose;
+  terminalId: number;
+}
+
+export interface TerminalCommandMessage {
+  type: MessageType.TerminalCommand;
+  terminalId: number;
+  command: string;
+}
+
+export interface TerminalOutputMessage {
+  type: MessageType.TerminalOutput;
+  terminalId: number;
+  data: string;
+}
+
+export interface TerminalCommandEndMessage {
+  type: MessageType.TerminalCommandEnd;
+  terminalId: number;
+  exitCode?: number;
+}
+
 export type LiveMessage =
   | SyncMessage
   | FileChangeMessage
@@ -83,4 +122,9 @@ export type LiveMessage =
   | SelectionChangeMessage
   | ViewerCountMessage
   | FileCloseMessage
-  | WorkspaceTreeMessage;
+  | WorkspaceTreeMessage
+  | TerminalOpenMessage
+  | TerminalCloseMessage
+  | TerminalCommandMessage
+  | TerminalOutputMessage
+  | TerminalCommandEndMessage;

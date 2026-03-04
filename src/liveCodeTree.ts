@@ -101,12 +101,12 @@ export class LiveCodeTreeDataProvider implements vscode.TreeDataProvider<LiveCod
             name: seg,
             parent: current,
             children: isFolder ? [] : undefined,
-          };
+          } as CachedNode;
           this.nodeByPath.set(pathSoFar, node);
           if (current.children) current.children.push(node);
         }
 
-        if (node.kind === 'folder') current = node;
+        if (node!.kind === 'folder') current = node!;
       }
     }
 
