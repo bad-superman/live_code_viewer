@@ -119,7 +119,7 @@ npm install
 4. **本地登录并发布**
    ```bash
    # 在项目根目录执行，按提示粘贴 PAT
-   vsce login live-code-viewer
+   vsce login RoyKou
 
    # 发布（会自动执行 prepublish 打包、并执行 npm version）
    vsce publish patch   # 0.0.3 -> 0.0.4，且需 Git 工作区干净

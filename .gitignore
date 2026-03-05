@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+out/
+
+# VS Code Extension package
+*.vsix
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+
+# Temporary files
+*.tmp
+*.temp
