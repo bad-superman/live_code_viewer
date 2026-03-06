@@ -28,6 +28,10 @@ export enum MessageType {
   TerminalOutput = 'terminalOutput',
   /** 终端命令执行结束 */
   TerminalCommandEnd = 'terminalCommandEnd',
+  /** 参与者光标位置同步 */
+  CursorSync = 'cursorSync',
+  /** 参与者状态更新 */
+  ParticipantStatus = 'participantStatus',
 }
 
 export interface Position {
@@ -115,6 +119,25 @@ export interface TerminalCommandEndMessage {
   exitCode?: number;
 }
 
+export interface CursorSyncMessage {
+  type: MessageType.CursorSync;
+  participantId: string;
+  participantName: string;
+  fileName: string;
+  line: number;
+  column: number;
+  timestamp: number;
+}
+
+export interface ParticipantStatusMessage {
+  type: MessageType.ParticipantStatus;
+  participantId: string;
+  participantName: string;
+  isActive: boolean;
+  lastActivity: number;
+  connectionQuality: 'excellent' | 'good' | 'fair' | 'poor';
+}
+
 export type LiveMessage =
   | SyncMessage
   | FileChangeMessage
@@ -127,4 +150,6 @@ export type LiveMessage =
   | TerminalCloseMessage
   | TerminalCommandMessage
   | TerminalOutputMessage
-  | TerminalCommandEndMessage;
+  | TerminalCommandEndMessage
+  | CursorSyncMessage
+  | ParticipantStatusMessage;

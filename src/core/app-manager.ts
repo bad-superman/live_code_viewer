@@ -3,6 +3,7 @@ import { ConnectionManager } from './connection-manager';
 import { RoomManager } from './room-manager';
 import { PermissionManager } from './permission-manager';
 import { StatusBarManager } from '../ui/status-bar';
+import { UsageTracker } from '../utils/usage-tracker';
 import { Host } from '../host';
 import { Viewer } from '../viewer';
 import { LiveCodeDocumentProvider } from '../virtualDocument';
@@ -20,6 +21,7 @@ export class AppManager {
   private treeProvider: LiveCodeTreeDataProvider;
   private treeView: vscode.TreeView<LiveCodeTreeNode>;
   private statusBarManager: StatusBarManager;
+  private usageTracker: UsageTracker;
 
   constructor(private context: vscode.ExtensionContext) {
     // 初始化核心管理器
@@ -49,6 +51,10 @@ export class AppManager {
     // 初始化状态栏管理器
     this.statusBarManager = new StatusBarManager();
     context.subscriptions.push(this.statusBarManager);
+
+    // 初始化使用跟踪器
+    this.usageTracker = new UsageTracker(context);
+    context.subscriptions.push(this.usageTracker);
 
     // 设置状态监听
     this.setupStatusListeners();
@@ -131,10 +137,15 @@ export class AppManager {
       this.statusBarManager.updateHostingStatus(true);
       this.statusBarManager.showTemporaryMessage('直播已开始');
       
+      // 跟踪使用数据
+      this.usageTracker.trackCommandUsage('startHosting');
+      this.usageTracker.trackRoomCreated('public', false);
+      
     } catch (err: any) {
       vscode.window.showErrorMessage(
         `Live Code: 启动失败 - ${err.message}`
       );
+      this.usageTracker.trackError('host_start_failed', err.message);
       this.host.dispose();
       this.host = null;
     }

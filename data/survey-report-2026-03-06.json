@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-03-06T10:57:05.545Z",
+  "summary": {
+    "totalUsers": 5,
+    "responsesReceived": 2,
+    "responseRate": "40.0%",
+    "targetResponseRate": "60.0%",
+    "targetAchieved": false
+  },
+  "responseAnalysis": {
+    "usageScenarios": {
+      "团队协作编程": 1,
+      "编程教学": 1
+    },
+    "featureUsage": {
+      "multiRoom": 1,
+      "permissions": 1,
+      "stableConnection": 1
+    },
+    "userRatings": {
+      "uiSatisfaction": 2,
+      "performanceSatisfaction": 2,
+      "installationSatisfaction": 2
+    },
+    "commonRequests": [
+      {
+        "request": "实时代码注释",
+        "count": 1
+      },
+      {
+        "request": "更好的权限管理",
+        "count": 1
+      },
+      {
+        "request": "移动端支持",
+        "count": 1
+      },
+      {
+        "request": "代码变更历史",
+        "count": 1
+      }
+    ]
+  },
+  "interviewCandidates": {
+    "totalCandidates": 1,
+    "candidates": [
+      {
+        "id": "user-001",
+        "usageScenario": "团队协作编程",
+        "usageFrequency": "每周几次",
+        "featureRequests": [
+          "实时代码注释",
+          "更好的权限管理"
+        ],
+        "improvementSuggestions": [
+          "简化房间创建流程",
+          "增加快捷键支持"
+        ],
+        "contactInfo": "user001@example.com"
+      }
+    ],
+    "selectionStatus": "Need more"
+  },
+  "recommendations": [
+    "需要增加问卷推广力度",
+    "需要识别更多深度访谈候选人",
+    "已收集 2 份问卷，准备进行初步分析",
+    "可以开始准备深度访谈邀请"
+  ]
+}

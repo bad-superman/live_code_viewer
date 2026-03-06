@@ -1,0 +1,28 @@
+{
+  "promotionStarted": "2026-03-06T10:58:05.509Z",
+  "promotions": [
+    {
+      "type": "GitHub Issues",
+      "timestamp": "2026-03-06T10:58:05.512Z",
+      "content": "## 🎯 Live Code Viewer v0.1.0 用户调研邀请\n\n亲爱的用户们，\n\n我们刚刚发布了 **v0.1.0** 版本，带来了多项重要改进：\n- 🏠 多房间支持\n- 🔗 连接稳定性增强  \n- 🎨 现代化用户界面\n- 🔒 权限管理功能\n\n为了持续改进产品，我们诚挚邀请您参与用户调研。您的反馈对我们至关重要！\n\n### 📋 参与方式\n1. **填写问卷**: [用户调研问卷](https://github.com/bad-superman/live_code_viewer/blob/main/docs/user-survey-v0.1.0.md)\n2. **直接评论**: 在此 Issue 中分享您的使用体验\n3. **深度访谈**: 参与 30-45 分钟深度交流\n\n### 🎁 参与奖励\n- v0.2.0 优先测试资格\n- 产品致谢页面署名\n- 功能建议优先考虑权\n\n**感谢您帮助我们打造更好的编程协作工具！**",
+      "estimatedUsersReached": 5,
+      "expectedResponseIncrease": 1
+    },
+    {
+      "type": "Marketplace Description",
+      "timestamp": "2026-03-06T10:58:05.512Z",
+      "content": "### 🎯 参与用户调研，帮助改进产品！\n\n我们正在收集 v0.1.0 版本的用户反馈。参与调研的用户将获得：\n- v0.2.0 优先测试资格\n- 产品致谢页面署名\n- 功能建议优先考虑权\n\n[查看问卷详情](https://github.com/bad-superman/live_code_viewer/blob/main/docs/user-survey-v0.1.0.md)",
+      "estimatedUsersReached": "所有新安装用户",
+      "expectedResponseIncrease": 0.5
+    },
+    {
+      "type": "Direct User Contact",
+      "timestamp": "2026-03-06T10:58:05.512Z",
+      "content": "亲爱的 Live Code Viewer 用户，\n\n感谢您使用我们的扩展！我们注意到您的积极使用，诚挚邀请您参与我们的用户深度访谈。\n\n**访谈详情：**\n- 时长：30-45 分钟\n- 方式：视频会议或语音通话\n- 内容：v0.1.0 使用体验和改进建议\n\n**参与奖励：**\n- v0.2.0 优先测试资格\n- 产品致谢页面特别感谢\n- 功能建议优先考虑权\n\n如果您有兴趣参与，请回复此消息安排时间。\n\n感谢您的支持！\nLive Code Viewer 开发团队",
+      "estimatedUsersReached": "活跃用户",
+      "expectedResponseIncrease": 1.5
+    }
+  ],
+  "totalPromotions": 3,
+  "estimatedImpact": 3
+}

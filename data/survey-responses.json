@@ -1,0 +1,77 @@
+{
+  "surveyStarted": "2026-03-06T10:57:05.541Z",
+  "totalUsers": 5,
+  "targetResponseRate": 0.6,
+  "responses": [
+    {
+      "id": "user-001",
+      "timestamp": "2026-03-06T10:57:05.544Z",
+      "usageScenario": "团队协作编程",
+      "usageFrequency": "每周几次",
+      "roomsCreated": 2,
+      "roomTypes": [
+        "public",
+        "private"
+      ],
+      "connectionIssues": "偶尔遇到",
+      "reconnectEffectiveness": "基本有效",
+      "uiRating": "比较直观",
+      "permissionUsage": "偶尔使用",
+      "installationExperience": "比较顺利",
+      "performanceRating": "比较流畅",
+      "featureRequests": [
+        "实时代码注释",
+        "更好的权限管理"
+      ],
+      "improvementSuggestions": [
+        "简化房间创建流程",
+        "增加快捷键支持"
+      ],
+      "contactWilling": true,
+      "contactInfo": "user001@example.com"
+    },
+    {
+      "id": "user-002",
+      "timestamp": "2026-03-06T10:57:05.544Z",
+      "usageScenario": "编程教学",
+      "usageFrequency": "每周1-2次",
+      "roomsCreated": 1,
+      "roomTypes": [
+        "public"
+      ],
+      "connectionIssues": "从未遇到",
+      "reconnectEffectiveness": "非常有效",
+      "uiRating": "非常直观",
+      "permissionUsage": "从未使用",
+      "installationExperience": "非常顺利",
+      "performanceRating": "非常流畅",
+      "featureRequests": [
+        "移动端支持",
+        "代码变更历史"
+      ],
+      "improvementSuggestions": [
+        "优化状态栏显示",
+        "增加主题适配"
+      ],
+      "contactWilling": false
+    }
+  ],
+  "potentialInterviewees": [
+    {
+      "id": "user-001",
+      "usageScenario": "团队协作编程",
+      "usageFrequency": "每周几次",
+      "featureRequests": [
+        "实时代码注释",
+        "更好的权限管理"
+      ],
+      "improvementSuggestions": [
+        "简化房间创建流程",
+        "增加快捷键支持"
+      ],
+      "contactInfo": "user001@example.com"
+    }
+  ],
+  "responseRate": 0.4,
+  "lastUpdated": "2026-03-06T10:57:05.544Z"
+}
