@@ -1,0 +1,36 @@
+{
+  "criteria": {
+    "usageFrequency": {
+      "high": "每天或每周多次使用",
+      "medium": "每周1-2次使用",
+      "low": "偶尔使用"
+    },
+    "featureUsage": {
+      "multiRoom": "使用多房间功能",
+      "permissions": "使用权限管理功能",
+      "stability": "关注连接稳定性"
+    },
+    "feedbackQuality": {
+      "detailed": "提供详细的功能反馈",
+      "constructive": "提出建设性改进建议",
+      "enthusiastic": "表现出浓厚兴趣"
+    }
+  },
+  "targetProfiles": [
+    {
+      "type": "高级用户",
+      "description": "频繁使用，深度体验多个功能",
+      "selectionWeight": 1
+    },
+    {
+      "type": "典型用户",
+      "description": "中等使用频率，代表大多数用户",
+      "selectionWeight": 0.8
+    },
+    {
+      "type": "新用户",
+      "description": "最近开始使用，提供新鲜视角",
+      "selectionWeight": 0.6
+    }
+  ]
+}

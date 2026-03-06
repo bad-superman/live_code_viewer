@@ -1,0 +1,2 @@
+# Live Code Viewer 用户反馈监控
+0 9,18 * * * /usr/bin/node /home/roy/source/live-code-viewer/scripts/auto-monitor.js >> /home/roy/source/live-code-viewer/logs/monitor.log 2>&1

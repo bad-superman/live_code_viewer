@@ -138,10 +138,40 @@ npm install -g @vscode/vsce
 vsce package   # 生成 live-code-viewer-x.x.x.vsix，可“从 VSIX 安装”或分发
 ```
 
+## 用户调研
+
+我们正在收集 **v0.1.0** 版本的用户反馈！您的意见对我们非常重要。
+
+### 📋 参与方式
+1. **填写问卷**: [用户调研问卷](./docs/user-survey-v0.1.0.md)
+2. **GitHub Issues**: [提交反馈](https://github.com/bad-superman/live_code_viewer/issues)
+3. **Marketplace 评论**: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=RoyKou.live-code-viewer)
+
+### 🎯 调研内容
+- v0.1.0 新功能体验（多房间、连接稳定性、新界面）
+- 整体使用感受和改进建议
+- 未来功能需求
+
+### 🎁 参与奖励
+- v0.2.0 优先测试资格
+- 产品致谢页面署名
+- 功能建议优先考虑权
+
 ## 版本历史
 
+### v0.1.0 (2026-03-06)
+- **多房间支持**: 公开/私有/邀请制房间管理
+- **连接稳定性**: 自动重连机制和连接质量监控
+- **现代化 UI**: 三栏状态栏和 Webview 房间面板
+- **权限管理**: 灵活的房间访问权限控制
+- **架构升级**: 模块化设计，事件驱动架构
+
+### v0.0.7 (2026-03-05)
+- **稳定性改进**: 修复连接问题，提升用户体验
+- **代码优化**: 清理代码库，完善 .gitignore
+
 ### v0.0.6 (2026-03-03)
-- **新功能**：添加 "Live Code: Copy Broadcast Address" 命令，方便主播复制直播地址与观众分享
+- **新功能**: 添加 "Live Code: Copy Broadcast Address" 命令，方便主播复制直播地址与观众分享
 
 ### v0.0.5 (2026-02-27)
 - 基础功能：主播端和观众端的实时代码观看
