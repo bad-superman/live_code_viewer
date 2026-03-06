@@ -1,31 +1,12 @@
 import * as vscode from 'vscode';
-import { Host } from './host';
-import { Viewer } from './viewer';
-import { LiveCodeDocumentProvider } from './virtualDocument';
-import { LiveCodeTreeDataProvider } from './liveCodeTree';
+import { AppManager } from './core/app-manager';
+import { RoomPanel } from './ui/room-panel';
 
-let host: Host | null = null;
-let viewer: Viewer | null = null;
+let appManager: AppManager | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
-  const documentProvider = new LiveCodeDocumentProvider();
-  const treeProvider = new LiveCodeTreeDataProvider();
-
-  context.subscriptions.push(
-    vscode.workspace.registerTextDocumentContentProvider(
-      'livecode',
-      documentProvider
-    )
-  );
-
-  const treeView = vscode.window.createTreeView('liveCodeViewer', {
-    treeDataProvider: treeProvider,
-    showCollapseAll: true,
-  });
-  context.subscriptions.push(treeView);
-
-  /** 供 Viewer 使用：同步主播当前文件时在树中展开并选中 */
-  const getTreeView = () => treeView;
+  // 初始化应用管理器
+  appManager = new AppManager(context);
 
   // ============ Host 命令 ============
 
@@ -33,29 +14,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       'live-code-viewer.startHosting',
       async () => {
-        if (host) {
-          vscode.window.showWarningMessage('Live Code: 已在直播中');
-          return;
-        }
-        if (viewer) {
-          vscode.window.showWarningMessage(
-            'Live Code: 当前处于观看模式，请先断开连接'
-          );
-          return;
-        }
-
-        const config = vscode.workspace.getConfiguration('liveCodeViewer');
-        const port = config.get<number>('port', 3456);
-
-        host = new Host(port);
-        try {
-          await host.start();
-        } catch (err: any) {
-          vscode.window.showErrorMessage(
-            `Live Code: 启动失败 - ${err.message}`
-          );
-          host.dispose();
-          host = null;
+        if (appManager) {
+          await appManager.startHosting();
         }
       }
     )
@@ -63,12 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('live-code-viewer.stopHosting', () => {
-      if (!host) {
-        vscode.window.showWarningMessage('Live Code: 当前未在直播');
-        return;
+      if (appManager) {
+        appManager.stopHosting();
       }
-      host.dispose();
-      host = null;
     })
   );
 
@@ -76,22 +33,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('live-code-viewer.copyAddress', () => {
-      if (!host) {
-        vscode.window.showWarningMessage('Live Code: 当前未在直播');
-        return;
-      }
-      
-      try {
-        const address = host.getBroadcastAddress();
-        vscode.env.clipboard.writeText(address).then(() => {
-          vscode.window.showInformationMessage(
-            `Live Code: 已复制直播地址 \"${address}\" 到剪贴板`
-          );
-        });
-      } catch (err: any) {
-        vscode.window.showErrorMessage(
-          `Live Code: 复制地址失败 - ${err.message}`
-        );
+      if (appManager) {
+        appManager.copyAddress();
       }
     })
   );
@@ -102,43 +45,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       'live-code-viewer.connect',
       async () => {
-        if (viewer) {
-          vscode.window.showWarningMessage('Live Code: 已连接到主播');
-          return;
-        }
-        if (host) {
-          vscode.window.showWarningMessage(
-            'Live Code: 当前处于直播模式，请先停止直播'
-          );
-          return;
-        }
-
-        const address = await vscode.window.showInputBox({
-          prompt: '输入主播地址 (IP:端口)',
-          placeHolder: '192.168.1.100:3456',
-          validateInput: (value) => {
-            if (!value.match(/^[\w.\-]+:\d+$/)) {
-              return '请输入有效地址，格式: IP:端口 (例如 192.168.1.100:3456)';
-            }
-            return null;
-          },
-        });
-
-        if (!address) { return; }
-
-        viewer = new Viewer(documentProvider, treeProvider, getTreeView());
-        viewer.onDisconnect = () => {
-          viewer = null;
-        };
-
-        try {
-          await viewer.connect(address);
-        } catch (err: any) {
-          vscode.window.showErrorMessage(
-            `Live Code: 连接失败 - ${err.message}`
-          );
-          viewer.dispose();
-          viewer = null;
+        if (appManager) {
+          await appManager.connectToHost();
         }
       }
     )
@@ -146,20 +54,147 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('live-code-viewer.disconnect', () => {
-      if (!viewer) {
-        vscode.window.showWarningMessage('Live Code: 当前未连接');
-        return;
+      if (appManager) {
+        appManager.disconnect();
       }
-      viewer.dispose();
-      viewer = null;
-      vscode.window.showInformationMessage('Live Code: 已断开连接');
     })
   );
+
+  // ============ 新增命令：多房间管理 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.createRoom',
+      async () => {
+        if (!appManager) return;
+
+        const name = await vscode.window.showInputBox({
+          prompt: '输入房间名称',
+          placeHolder: '我的直播房间',
+          validateInput: (value) => {
+            if (!value || value.trim().length === 0) {
+              return '房间名称不能为空';
+            }
+            return null;
+          },
+        });
+
+        if (!name) return;
+
+        const roomType = await vscode.window.showQuickPick(
+          [
+            { label: '公开房间', description: '任何人都可以加入', type: 'public' },
+            { label: '私有房间', description: '需要密码', type: 'private' },
+            { label: '邀请制房间', description: '仅受邀用户可加入', type: 'invite-only' }
+          ],
+          {
+            placeHolder: '选择房间类型'
+          }
+        );
+
+        if (!roomType) return;
+
+        let password: string | undefined;
+        if (roomType.type === 'private') {
+          password = await vscode.window.showInputBox({
+            prompt: '设置房间密码',
+            password: true,
+            validateInput: (value) => {
+              if (!value || value.trim().length === 0) {
+                return '密码不能为空';
+              }
+              return null;
+            },
+          });
+
+          if (!password) return;
+        }
+
+        try {
+          const roomManager = appManager.getRoomManager();
+          const room = roomManager.createRoom({
+            name: name.trim(),
+            type: roomType.type as any,
+            password
+          });
+
+          vscode.window.showInformationMessage(
+            `Live Code: 房间 "${room.name}" 创建成功`
+          );
+
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `Live Code: 创建房间失败 - ${error.message}`
+          );
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.listRooms',
+      async () => {
+        if (!appManager) return;
+
+        const roomManager = appManager.getRoomManager();
+        const rooms = roomManager.getAllRooms();
+
+        if (rooms.length === 0) {
+          vscode.window.showInformationMessage('Live Code: 暂无房间');
+          return;
+        }
+
+        const roomItems = rooms.map(room => ({
+          label: room.name,
+          description: `${room.type} - ${room.participants.length} 人`,
+          detail: `创建时间: ${room.createdAt.toLocaleString()}`,
+          room
+        }));
+
+        const selected = await vscode.window.showQuickPick(roomItems, {
+          placeHolder: '选择要进入的房间'
+        });
+
+        if (selected) {
+          try {
+            roomManager.setCurrentRoom(selected.room.id);
+            vscode.window.showInformationMessage(
+              `Live Code: 已切换到房间 "${selected.room.name}"`
+            );
+          } catch (error: any) {
+            vscode.window.showErrorMessage(
+              `Live Code: 切换房间失败 - ${error.message}`
+            );
+          }
+        }
+      }
+    )
+  );
+
+  // ============ 房间面板命令 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showRoomPanel',
+      () => {
+        if (!appManager) return;
+        
+        const roomManager = appManager.getRoomManager();
+        RoomPanel.createOrShow(context.extensionUri, roomManager);
+      }
+    )
+  );
+
+  // ============ 状态栏显示 ============
+
+  // TODO: 实现状态栏显示连接状态和房间信息
+  // 这里可以添加状态栏项目来显示实时状态
+
+  console.log('Live Code Viewer v0.1.0 已激活 - 模块化架构');
 }
 
 export function deactivate() {
-  host?.dispose();
-  host = null;
-  viewer?.dispose();
-  viewer = null;
+  appManager?.dispose();
+  appManager = null;
 }

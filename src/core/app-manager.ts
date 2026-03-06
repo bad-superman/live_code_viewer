@@ -1,0 +1,309 @@
+import * as vscode from 'vscode';
+import { ConnectionManager } from './connection-manager';
+import { RoomManager } from './room-manager';
+import { PermissionManager } from './permission-manager';
+import { StatusBarManager } from '../ui/status-bar';
+import { Host } from '../host';
+import { Viewer } from '../viewer';
+import { LiveCodeDocumentProvider } from '../virtualDocument';
+import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from '../liveCodeTree';
+
+export class AppManager {
+  private connectionManager: ConnectionManager;
+  private roomManager: RoomManager;
+  private permissionManager: PermissionManager;
+  
+  private host: Host | null = null;
+  private viewer: Viewer | null = null;
+  
+  private documentProvider: LiveCodeDocumentProvider;
+  private treeProvider: LiveCodeTreeDataProvider;
+  private treeView: vscode.TreeView<LiveCodeTreeNode>;
+  private statusBarManager: StatusBarManager;
+
+  constructor(private context: vscode.ExtensionContext) {
+    // 初始化核心管理器
+    this.connectionManager = new ConnectionManager(context);
+    this.roomManager = new RoomManager(context);
+    this.permissionManager = new PermissionManager();
+    
+    // 初始化现有组件
+    this.documentProvider = new LiveCodeDocumentProvider();
+    this.treeProvider = new LiveCodeTreeDataProvider();
+    
+    // 注册文档提供者
+    context.subscriptions.push(
+      vscode.workspace.registerTextDocumentContentProvider(
+        'livecode',
+        this.documentProvider
+      )
+    );
+
+    // 创建树视图
+    this.treeView = vscode.window.createTreeView('liveCodeViewer', {
+      treeDataProvider: this.treeProvider,
+      showCollapseAll: true,
+    });
+    context.subscriptions.push(this.treeView);
+
+    // 初始化状态栏管理器
+    this.statusBarManager = new StatusBarManager();
+    context.subscriptions.push(this.statusBarManager);
+
+    // 设置状态监听
+    this.setupStatusListeners();
+  }
+
+  /**
+   * 设置状态监听器
+   */
+  private setupStatusListeners(): void {
+    // 监听连接状态变化
+    this.connectionManager.onStatusChange((status) => {
+      this.statusBarManager.updateConnectionStatus(status);
+    });
+
+    // 监听房间状态变化
+    this.roomManager.on('roomCreated', (room) => {
+      console.log(`房间创建: ${room.name}`);
+      this.statusBarManager.updateRoomStatus(room);
+      this.statusBarManager.showTemporaryMessage(`房间 "${room.name}" 创建成功`);
+    });
+
+    this.roomManager.on('roomUpdated', (room) => {
+      console.log(`房间更新: ${room.name}`);
+      this.statusBarManager.updateRoomStatus(room);
+    });
+
+    this.roomManager.on('roomDeleted', (roomId) => {
+      const currentRoom = this.roomManager.getCurrentRoom();
+      this.statusBarManager.updateRoomStatus(currentRoom || null);
+      this.statusBarManager.showTemporaryMessage('房间已删除', 'info');
+    });
+
+    this.roomManager.on('participantJoined', (roomId, participant) => {
+      console.log(`参与者加入: ${participant.name}`);
+      const currentRoom = this.roomManager.getCurrentRoom();
+      if (currentRoom && currentRoom.id === roomId) {
+        this.statusBarManager.showTemporaryMessage(`${participant.name} 加入房间`);
+      }
+    });
+
+    this.roomManager.on('participantLeft', (roomId, participantId) => {
+      const currentRoom = this.roomManager.getCurrentRoom();
+      if (currentRoom && currentRoom.id === roomId) {
+        this.statusBarManager.showTemporaryMessage('参与者离开房间', 'info');
+      }
+    });
+  }
+
+  /**
+   * 开始直播（兼容现有功能）
+   */
+  async startHosting(): Promise<void> {
+    if (this.host) {
+      vscode.window.showWarningMessage('Live Code: 已在直播中');
+      return;
+    }
+    if (this.viewer) {
+      vscode.window.showWarningMessage(
+        'Live Code: 当前处于观看模式，请先断开连接'
+      );
+      return;
+    }
+
+    const config = vscode.workspace.getConfiguration('liveCodeViewer');
+    const port = config.get<number>('port', 3456);
+
+    this.host = new Host(port);
+    try {
+      await this.host.start();
+      
+      // 创建默认房间
+      const defaultRoom = this.roomManager.createRoom({
+        name: '默认直播房间',
+        type: 'public'
+      });
+      
+      this.roomManager.setCurrentRoom(defaultRoom.id);
+      
+      // 更新状态栏
+      this.statusBarManager.updateHostingStatus(true);
+      this.statusBarManager.showTemporaryMessage('直播已开始');
+      
+    } catch (err: any) {
+      vscode.window.showErrorMessage(
+        `Live Code: 启动失败 - ${err.message}`
+      );
+      this.host.dispose();
+      this.host = null;
+    }
+  }
+
+  /**
+   * 停止直播
+   */
+  stopHosting(): void {
+    if (!this.host) {
+      vscode.window.showWarningMessage('Live Code: 当前未在直播');
+      return;
+    }
+    
+    // 关闭当前房间
+    const currentRoom = this.roomManager.getCurrentRoom();
+    if (currentRoom) {
+      this.roomManager.closeRoom(currentRoom.id);
+    }
+    
+    this.host.dispose();
+    this.host = null;
+    
+    // 更新状态栏
+    this.statusBarManager.updateHostingStatus(false);
+    this.statusBarManager.showTemporaryMessage('直播已停止');
+  }
+
+  /**
+   * 复制直播地址
+   */
+  copyAddress(): void {
+    if (!this.host) {
+      vscode.window.showWarningMessage('Live Code: 当前未在直播');
+      return;
+    }
+    
+    try {
+      const address = this.host.getBroadcastAddress();
+      vscode.env.clipboard.writeText(address).then(() => {
+        vscode.window.showInformationMessage(
+          `Live Code: 已复制直播地址 "${address}" 到剪贴板`
+        );
+      });
+    } catch (err: any) {
+      vscode.window.showErrorMessage(
+        `Live Code: 复制地址失败 - ${err.message}`
+      );
+    }
+  }
+
+  /**
+   * 连接到主播
+   */
+  async connectToHost(): Promise<void> {
+    if (this.viewer) {
+      vscode.window.showWarningMessage('Live Code: 已连接到主播');
+      return;
+    }
+    if (this.host) {
+      vscode.window.showWarningMessage(
+        'Live Code: 当前处于直播模式，请先停止直播'
+      );
+      return;
+    }
+
+    const address = await vscode.window.showInputBox({
+      prompt: '输入主播地址 (IP:端口)',
+      placeHolder: '192.168.1.100:3456',
+      validateInput: (value) => {
+        if (!value.match(/^[\w.\-]+:\d+$/)) {
+          return '请输入有效地址，格式: IP:端口 (例如 192.168.1.100:3456)';
+        }
+        return null;
+      },
+    });
+
+    if (!address) { return; }
+
+    this.viewer = new Viewer(this.documentProvider, this.treeProvider, this.treeView);
+    this.viewer.onDisconnect = () => {
+      this.viewer = null;
+    };
+
+    try {
+      await this.viewer.connect(address);
+      
+      // 使用新的连接管理器建立连接
+      const [host, portStr] = address.split(':');
+      const port = parseInt(portStr, 10);
+      
+      await this.connectionManager.connect({
+        host,
+        port,
+        protocol: 'ws'
+      });
+      
+    } catch (err: any) {
+      vscode.window.showErrorMessage(
+        `Live Code: 连接失败 - ${err.message}`
+      );
+      this.viewer.dispose();
+      this.viewer = null;
+    }
+  }
+
+  /**
+   * 断开连接
+   */
+  disconnect(): void {
+    if (!this.viewer) {
+      vscode.window.showWarningMessage('Live Code: 当前未连接');
+      return;
+    }
+    
+    this.connectionManager.disconnect();
+    this.viewer.dispose();
+    this.viewer = null;
+    vscode.window.showInformationMessage('Live Code: 已断开连接');
+  }
+
+  /**
+   * 获取连接管理器
+   */
+  getConnectionManager(): ConnectionManager {
+    return this.connectionManager;
+  }
+
+  /**
+   * 获取房间管理器
+   */
+  getRoomManager(): RoomManager {
+    return this.roomManager;
+  }
+
+  /**
+   * 获取权限管理器
+   */
+  getPermissionManager(): PermissionManager {
+    return this.permissionManager;
+  }
+
+  /**
+   * 获取当前状态
+   */
+  getStatus(): {
+    isHosting: boolean;
+    isViewing: boolean;
+    connectionStatus: any;
+    currentRoom: any;
+  } {
+    return {
+      isHosting: this.host !== null,
+      isViewing: this.viewer !== null,
+      connectionStatus: this.connectionManager.getStatus(),
+      currentRoom: this.roomManager.getCurrentRoom()
+    };
+  }
+
+
+
+  dispose(): void {
+    this.connectionManager.dispose();
+    this.roomManager.dispose();
+    
+    this.host?.dispose();
+    this.host = null;
+    
+    this.viewer?.dispose();
+    this.viewer = null;
+  }
+}
