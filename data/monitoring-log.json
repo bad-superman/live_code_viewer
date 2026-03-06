@@ -51,6 +51,40 @@
         "trend": "stable"
       },
       "alerts": []
+    },
+    {
+      "timestamp": "2026-03-06T11:30:20.949Z",
+      "stats": {
+        "timestamp": "2026-03-06T11:30:20.949Z",
+        "downloads": 39,
+        "installs": 5,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-06T11:34:46.847Z",
+      "stats": {
+        "timestamp": "2026-03-06T11:34:46.847Z",
+        "downloads": 39,
+        "installs": 5,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
     }
   ]
 }
