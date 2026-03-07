@@ -7,6 +7,10 @@ export interface CursorPosition {
   line: number;
   column: number;
   timestamp: number;
+  selection?: {
+    start: { line: number; column: number };
+    end: { line: number; column: number };
+  };
 }
 
 export interface ParticipantCursor {
@@ -15,21 +19,26 @@ export interface ParticipantCursor {
   color: string;
   position: CursorPosition;
   isActive: boolean;
+  lastActivity: number;
+  connectionQuality: 'excellent' | 'good' | 'fair' | 'poor';
 }
 
 export class CursorSyncManager {
   private cursors: Map<string, ParticipantCursor> = new Map();
   private cursorDecorations: Map<string, vscode.TextEditorDecorationType> = new Map();
   private readonly cursorUpdateEmitter = new EventEmitter<ParticipantCursor[]>();
+  private cleanupInterval: NodeJS.Timeout | undefined;
   
   public onCursorUpdate = this.cursorUpdateEmitter.event;
 
-  constructor(private context: vscode.ExtensionContext) {}
+  constructor(private context: vscode.ExtensionContext) {
+    this.startCleanupInterval();
+  }
 
   /**
    * 更新参与者光标位置
    */
-  updateCursorPosition(participantId: string, participantName: string, position: CursorPosition): void {
+  updateCursorPosition(participantId: string, participantName: string, position: CursorPosition, connectionQuality: 'excellent' | 'good' | 'fair' | 'poor' = 'good'): void {
     const existingCursor = this.cursors.get(participantId);
     const color = this.getParticipantColor(participantId);
     
@@ -38,7 +47,9 @@ export class CursorSyncManager {
       participantName,
       color,
       position,
-      isActive: true
+      isActive: true,
+      lastActivity: Date.now(),
+      connectionQuality
     };
 
     this.cursors.set(participantId, cursor);
@@ -98,7 +109,7 @@ export class CursorSyncManager {
       borderWidth: '1px',
       borderStyle: 'solid',
       after: {
-        contentText: ` ${cursor.participantName}`,
+        contentText: ` ${cursor.participantName} (${cursor.connectionQuality})`,
         color: cursor.color,
         fontWeight: 'bold'
       }
@@ -107,9 +118,26 @@ export class CursorSyncManager {
     this.cursorDecorations.set(participantId, decorationType);
 
     // 设置装饰器位置
-    const position = new vscode.Position(cursor.position.line, cursor.position.column);
-    const range = new vscode.Range(position, position);
-    editor.setDecorations(decorationType, [range]);
+    const ranges: vscode.Range[] = [];
+    
+    // 光标位置
+    const cursorPosition = new vscode.Position(cursor.position.line, cursor.position.column);
+    ranges.push(new vscode.Range(cursorPosition, cursorPosition));
+    
+    // 选择区域（如果有）
+    if (cursor.position.selection) {
+      const selectionStart = new vscode.Position(
+        cursor.position.selection.start.line,
+        cursor.position.selection.start.column
+      );
+      const selectionEnd = new vscode.Position(
+        cursor.position.selection.end.line,
+        cursor.position.selection.end.column
+      );
+      ranges.push(new vscode.Range(selectionStart, selectionEnd));
+    }
+
+    editor.setDecorations(decorationType, ranges);
   }
 
   /**
@@ -142,8 +170,69 @@ export class CursorSyncManager {
     return colors[index];
   }
 
+  /**
+   * 启动清理间隔，移除不活动的参与者
+   */
+  private startCleanupInterval(): void {
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupInactiveCursors();
+    }, 30000); // 每30秒清理一次
+  }
+
+  /**
+   * 清理不活动的光标
+   */
+  private cleanupInactiveCursors(): void {
+    const now = Date.now();
+    const inactiveThreshold = 60000; // 60秒不活动视为不活跃
+
+    let hasChanges = false;
+    
+    this.cursors.forEach((cursor, participantId) => {
+      if (now - cursor.lastActivity > inactiveThreshold) {
+        this.cursors.delete(participantId);
+        this.removeCursorDecoration(participantId);
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      this.cursorUpdateEmitter.fire(Array.from(this.cursors.values()));
+    }
+  }
+
+  /**
+   * 获取连接质量统计
+   */
+  getConnectionStats(): {
+    excellent: number;
+    good: number;
+    fair: number;
+    poor: number;
+    total: number;
+  } {
+    const stats = {
+      excellent: 0,
+      good: 0,
+      fair: 0,
+      poor: 0,
+      total: this.cursors.size
+    };
+
+    this.cursors.forEach(cursor => {
+      stats[cursor.connectionQuality]++;
+    });
+
+    return stats;
+  }
+
   dispose(): void {
     this.clearAllCursors();
     this.cursorUpdateEmitter.dispose();
+    
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = undefined;
+    }
   }
 }

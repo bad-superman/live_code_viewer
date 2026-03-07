@@ -2,7 +2,7 @@
   "name": "live-code-viewer",
   "displayName": "Live Code Viewer",
   "description": "局域网实时观看编程 - Watch your teammates code live over LAN",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "RoyKou",
   "repository": {
     "type": "git",

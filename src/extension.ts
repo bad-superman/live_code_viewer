@@ -186,6 +186,48 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // ============ v0.1.1 新增命令 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showParticipantPanel',
+      () => {
+        if (!appManager) return;
+        appManager.showParticipantPanel();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showPerformancePanel',
+      () => {
+        if (!appManager) return;
+        appManager.showPerformancePanel();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showErrorReport',
+      () => {
+        if (!appManager) return;
+        appManager.showErrorReport();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showShortcutHelp',
+      () => {
+        if (!appManager) return;
+        appManager.showShortcutHelp();
+      }
+    )
+  );
+
   // ============ 状态栏显示 ============
 
   // TODO: 实现状态栏显示连接状态和房间信息

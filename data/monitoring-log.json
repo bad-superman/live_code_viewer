@@ -102,6 +102,23 @@
         "trend": "stable"
       },
       "alerts": []
+    },
+    {
+      "timestamp": "2026-03-06T11:47:53.580Z",
+      "stats": {
+        "timestamp": "2026-03-06T11:47:53.580Z",
+        "downloads": 39,
+        "installs": 5,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
     }
   ]
 }

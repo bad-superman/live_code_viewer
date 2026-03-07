@@ -8,11 +8,27 @@ import { Host } from '../host';
 import { Viewer } from '../viewer';
 import { LiveCodeDocumentProvider } from '../virtualDocument';
 import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from '../liveCodeTree';
+import { CursorSyncManager } from '../collaboration/cursor-sync-manager';
+import { ParticipantStatusManager } from '../collaboration/participant-status-manager';
+import { ShortcutManager } from '../ui/shortcut-manager';
+import { ThemeAdapter } from '../ui/theme-adapter';
+import { PerformancePanel } from '../ui/performance-panel';
+import { ErrorHandler } from './error-handler';
 
 export class AppManager {
   private connectionManager: ConnectionManager;
   private roomManager: RoomManager;
   private permissionManager: PermissionManager;
+  
+  // 协作模块
+  private cursorSyncManager: CursorSyncManager;
+  private participantStatusManager: ParticipantStatusManager;
+  
+  // 用户体验模块
+  private shortcutManager: ShortcutManager;
+  private themeAdapter: ThemeAdapter;
+  private performancePanel: PerformancePanel;
+  private errorHandler: ErrorHandler;
   
   private host: Host | null = null;
   private viewer: Viewer | null = null;
@@ -28,6 +44,16 @@ export class AppManager {
     this.connectionManager = new ConnectionManager(context);
     this.roomManager = new RoomManager(context);
     this.permissionManager = new PermissionManager();
+    
+    // 初始化协作模块
+    this.cursorSyncManager = new CursorSyncManager(context);
+    this.participantStatusManager = new ParticipantStatusManager(context);
+    
+    // 初始化用户体验模块
+    this.shortcutManager = new ShortcutManager(context);
+    this.themeAdapter = new ThemeAdapter(context);
+    this.performancePanel = new PerformancePanel(context);
+    this.errorHandler = new ErrorHandler(context);
     
     // 初始化现有组件
     this.documentProvider = new LiveCodeDocumentProvider();
@@ -305,11 +331,63 @@ export class AppManager {
     };
   }
 
+  /**
+   * v0.1.1 新增功能方法
+   */
 
+  /**
+   * 显示参与者面板
+   */
+  showParticipantPanel(): void {
+    this.participantStatusManager.showParticipantPanel();
+  }
+
+  /**
+   * 显示性能监控面板
+   */
+  showPerformancePanel(): void {
+    this.performancePanel.show();
+  }
+
+  /**
+   * 显示错误报告
+   */
+  showErrorReport(): void {
+    this.errorHandler.showErrorReport();
+  }
+
+  /**
+   * 显示快捷键帮助
+   */
+  showShortcutHelp(): void {
+    this.shortcutManager.showHelp();
+  }
+
+  /**
+   * 获取错误处理器
+   */
+  getErrorHandler(): ErrorHandler {
+    return this.errorHandler;
+  }
+
+  /**
+   * 获取主题适配器
+   */
+  getThemeAdapter(): ThemeAdapter {
+    return this.themeAdapter;
+  }
 
   dispose(): void {
     this.connectionManager.dispose();
     this.roomManager.dispose();
+    
+    // v0.1.1 新增模块销毁
+    this.cursorSyncManager.dispose();
+    this.participantStatusManager.dispose();
+    this.shortcutManager.dispose();
+    this.themeAdapter.dispose();
+    this.performancePanel.dispose();
+    this.errorHandler.dispose();
     
     this.host?.dispose();
     this.host = null;
