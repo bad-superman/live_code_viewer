@@ -1,8 +1,8 @@
 {
   "name": "live-code-viewer",
   "displayName": "Live Code Viewer",
-  "description": "局域网实时观看编程 - Watch your teammates code live over LAN",
-  "version": "0.1.1",
+  "description": "局域网实时协作编程 - Live collaborative coding with real-time editing, comments, and file sharing",
+  "version": "0.1.2",
   "publisher": "RoyKou",
   "repository": {
     "type": "git",
