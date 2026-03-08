@@ -213,7 +213,8 @@ export class OperationVersionManager {
   private appliedOperations: Map<number, EditOperation[]> = new Map();
 
   getNextVersion(): number {
-    return ++this.currentVersion;
+    this.currentVersion++;
+    return this.currentVersion;
   }
 
   getCurrentVersion(): number {
@@ -224,6 +225,11 @@ export class OperationVersionManager {
     const versionOperations = this.appliedOperations.get(operation.version) || [];
     versionOperations.push(operation);
     this.appliedOperations.set(operation.version, versionOperations);
+    
+    // 更新当前版本到操作版本
+    if (operation.version > this.currentVersion) {
+      this.currentVersion = operation.version;
+    }
   }
 
   getOperationsByVersion(version: number): EditOperation[] {
