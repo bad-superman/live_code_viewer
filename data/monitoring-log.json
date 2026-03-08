@@ -567,6 +567,148 @@
         "trend": "stable"
       },
       "alerts": []
+    },
+    {
+      "timestamp": "2026-03-07T02:47:24.458Z",
+      "stats": {
+        "timestamp": "2026-03-07T02:47:24.458Z",
+        "downloads": 43,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-07T13:30:37.726Z",
+      "stats": {
+        "timestamp": "2026-03-07T13:30:37.726Z",
+        "downloads": 43,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-07T20:25:43.814Z",
+      "stats": {
+        "timestamp": "2026-03-07T20:25:43.814Z",
+        "downloads": 43,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-07T21:25:34.226Z",
+      "stats": {
+        "timestamp": "2026-03-07T21:25:34.226Z",
+        "downloads": 43,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-07T22:25:35.182Z",
+      "stats": {
+        "timestamp": "2026-03-07T22:25:35.182Z",
+        "downloads": 43,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-07T23:25:34.728Z",
+      "stats": {
+        "timestamp": "2026-03-07T23:25:34.728Z",
+        "downloads": 43,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
+    },
+    {
+      "timestamp": "2026-03-08T00:25:35.315Z",
+      "stats": {
+        "timestamp": "2026-03-08T00:25:35.315Z",
+        "downloads": 47,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 4,
+        "installGrowth": 0,
+        "trend": "growing"
+      },
+      "alerts": [
+        {
+          "level": "info",
+          "message": "用户增长加速: +4 下载, +0 安装",
+          "timestamp": "2026-03-08T00:25:35.315Z"
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-03-08T00:26:15.140Z",
+      "stats": {
+        "timestamp": "2026-03-08T00:26:15.140Z",
+        "downloads": 47,
+        "installs": 6,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 0,
+        "installGrowth": 0,
+        "trend": "stable"
+      },
+      "alerts": []
     }
   ]
 }
