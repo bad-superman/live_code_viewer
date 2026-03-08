@@ -5,13 +5,33 @@
 
 export interface EditOperation {
   id: string;
-  type: 'insert' | 'delete' | 'replace' | 'selection';
+  type: 'insert' | 'delete' | 'replace' | 'selection' | 'batch';
   position: number;
   content?: string;
   length?: number;
   timestamp: number;
   author: string;
   version: number;
+  metadata?: {
+    compressed?: boolean;
+    originalLength?: number;
+    batch?: boolean;
+    operationCount?: number;
+    operations?: Array<{
+      id: string;
+      type: string;
+      position: number;
+    }>;
+    originalOperations?: Array<{
+      id: string;
+      type: string;
+      position: number;
+      timestamp: number;
+    }>;
+    networkCompressed?: boolean;
+    originalEncoding?: string;
+    networkBatch?: boolean;
+  };
 }
 
 export interface SelectionOperation {

@@ -185,7 +185,7 @@ export class ConflictResolver {
   static calculateOperationImpact(operation: EditOperation): {
     start: number;
     end: number;
-    type: 'insert' | 'delete' | 'replace' | 'selection';
+    type: 'insert' | 'delete' | 'replace' | 'selection' | 'batch';
   } {
     const start = operation.position;
     let end = start;
