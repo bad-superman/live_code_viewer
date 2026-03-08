@@ -144,7 +144,7 @@ export class OperationTransformer {
   ): EditOperation {
     // 简化版本：基于时间戳决定优先级
     // 在实际应用中应该使用更复杂的 OT 算法
-    if (operation.timestamp < concurrentOperation.timestamp) {
+    if (operation.timestamp <= concurrentOperation.timestamp) {
       return operation;
     }
 
@@ -157,7 +157,6 @@ export class OperationTransformer {
     concurrentOperation: EditOperation
   ): EditOperation {
     let adjustedPosition = operation.position;
-    let adjustedLength = operation.length;
 
     if (concurrentOperation.type === 'insert') {
       // 如果并发操作是插入，且插入位置在当前操作之前
@@ -170,19 +169,18 @@ export class OperationTransformer {
       
       if (concurrentOperation.position < operation.position) {
         if (deleteEnd <= operation.position) {
+          // 删除操作完全在当前操作之前
           adjustedPosition -= (concurrentOperation.length || 0);
-        } else {
-          // 部分重叠，需要更复杂的处理
+        } else if (deleteEnd > operation.position) {
+          // 删除操作部分重叠或完全覆盖当前操作
           adjustedPosition = concurrentOperation.position;
-          adjustedLength = operation.position + (operation.length || 0) - deleteEnd;
         }
       }
     }
 
     return {
       ...operation,
-      position: adjustedPosition,
-      length: adjustedLength
+      position: adjustedPosition
     };
   }
 }

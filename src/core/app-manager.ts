@@ -10,6 +10,7 @@ import { LiveCodeDocumentProvider } from '../virtualDocument';
 import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from '../liveCodeTree';
 import { CursorSyncManager } from '../collaboration/cursor-sync-manager';
 import { ParticipantStatusManager } from '../collaboration/participant-status-manager';
+import { CollaborationManager } from '../collaboration/collaboration-manager';
 import { ShortcutManager } from '../ui/shortcut-manager';
 import { ThemeAdapter } from '../ui/theme-adapter';
 import { PerformancePanel } from '../ui/performance-panel';
@@ -23,6 +24,7 @@ export class AppManager {
   // 协作模块
   private cursorSyncManager: CursorSyncManager;
   private participantStatusManager: ParticipantStatusManager;
+  private collaborationManager: CollaborationManager;
   
   // 用户体验模块
   private shortcutManager: ShortcutManager;
@@ -48,6 +50,7 @@ export class AppManager {
     // 初始化协作模块
     this.cursorSyncManager = new CursorSyncManager(context);
     this.participantStatusManager = new ParticipantStatusManager(context);
+    this.collaborationManager = CollaborationManager.getInstance();
     
     // 初始化用户体验模块
     this.shortcutManager = new ShortcutManager(context);
@@ -377,6 +380,40 @@ export class AppManager {
     return this.themeAdapter;
   }
 
+  /**
+   * v0.1.2 新增协作编辑功能
+   */
+
+  /**
+   * 启用协作编辑
+   */
+  enableCollaborativeEditing(): void {
+    this.collaborationManager.enableCollaboration();
+    this.statusBarManager.showTemporaryMessage('协作编辑已启用');
+  }
+
+  /**
+   * 禁用协作编辑
+   */
+  disableCollaborativeEditing(): void {
+    this.collaborationManager.disableCollaboration();
+    this.statusBarManager.showTemporaryMessage('协作编辑已禁用');
+  }
+
+  /**
+   * 显示协作状态面板
+   */
+  showCollaborationPanel(): void {
+    this.collaborationManager.createCollaborationPanel();
+  }
+
+  /**
+   * 获取协作统计信息
+   */
+  getCollaborationStats(): any {
+    return this.collaborationManager.getCollaborationStats();
+  }
+
   dispose(): void {
     this.connectionManager.dispose();
     this.roomManager.dispose();
@@ -384,6 +421,7 @@ export class AppManager {
     // v0.1.1 新增模块销毁
     this.cursorSyncManager.dispose();
     this.participantStatusManager.dispose();
+    this.collaborationManager.dispose();
     this.shortcutManager.dispose();
     this.themeAdapter.dispose();
     this.performancePanel.dispose();

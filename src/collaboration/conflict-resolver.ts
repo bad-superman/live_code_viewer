@@ -148,9 +148,9 @@ export class ConflictResolver {
     op2: EditOperation
   ): boolean {
     const op1Start = op1.position;
-    const op1End = op1.position + (op1.length || 0);
+    const op1End = op1.position + (op1.length || (op1.content?.length || 0));
     const op2Start = op2.position;
-    const op2End = op2.position + (op2.length || 0);
+    const op2End = op2.position + (op2.length || (op2.content?.length || 0));
 
     // 检查范围重叠
     return !(op1End <= op2Start || op2End <= op1Start);

@@ -228,6 +228,38 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // ============ v0.1.2 新增协作编辑命令 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.enableCollaborativeEditing',
+      () => {
+        if (!appManager) return;
+        appManager.enableCollaborativeEditing();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.disableCollaborativeEditing',
+      () => {
+        if (!appManager) return;
+        appManager.disableCollaborativeEditing();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showCollaborationPanel',
+      () => {
+        if (!appManager) return;
+        appManager.showCollaborationPanel();
+      }
+    )
+  );
+
   // ============ 状态栏显示 ============
 
   // TODO: 实现状态栏显示连接状态和房间信息
