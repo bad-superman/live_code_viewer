@@ -152,10 +152,19 @@ export class OperationTransformer {
     op1: EditOperation,
     op2: EditOperation
   ): boolean {
-    const op1End = op1.position + (op1.length || 0);
-    const op2End = op2.position + (op2.length || 0);
+    const op1End = op1.position + (op1.type === 'insert' ? (op1.content?.length || 0) : (op1.length || 0));
+    const op2End = op2.position + (op2.type === 'insert' ? (op2.content?.length || 0) : (op2.length || 0));
 
-    return op1End <= op2.position || op2End <= op1.position;
+    // 对于删除操作，如果它在插入操作之前，应该被认为是重叠的（需要调整位置）
+    if (op2.type === 'delete' && op2.position < op1.position) {
+      return false;
+    }
+    if (op1.type === 'delete' && op1.position < op2.position) {
+      return false;
+    }
+
+    // 严格不重叠：两个操作完全不接触
+    return op1End < op2.position || op2End < op1.position;
   }
 
   private static handleOverlappingOperations(
@@ -197,7 +206,7 @@ export class OperationTransformer {
         }
       }
     }
-
+    
     return {
       ...operation,
       position: adjustedPosition

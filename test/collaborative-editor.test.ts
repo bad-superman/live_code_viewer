@@ -55,16 +55,24 @@ describe('协作编辑器核心功能测试', () => {
       const op1 = EditOperationFactory.createInsert(5, 'hello', 'user1', 1);
       const op2 = EditOperationFactory.createInsert(0, 'start', 'user2', 2);
       
+      // 确保 op2 的时间戳比 op1 更早，这样 op1 会被调整
+      op1.timestamp = 2000;
+      op2.timestamp = 1000;
+      
       const transformed = OperationTransformer.transform(op1, op2);
       
       // 由于op2插入在位置0，op1的位置应该调整
-      expect(transformed.position).toBeGreaterThan(5);
+      expect(transformed.position).toBe(10); // 5 + 5 (start的长度)
       expect(transformed.content).toBe('hello');
     });
 
     test('应该处理删除操作的影响', () => {
       const insertOp = EditOperationFactory.createInsert(10, 'hello', 'user1', 1);
       const deleteOp = EditOperationFactory.createDelete(0, 5, 'user2', 2);
+      
+      // 确保 deleteOp 的时间戳比 insertOp 更早，这样 insertOp 会被调整
+      insertOp.timestamp = 2000;
+      deleteOp.timestamp = 1000;
       
       const transformed = OperationTransformer.transform(insertOp, deleteOp);
       

@@ -7,6 +7,8 @@ import * as vscode from 'vscode';
 import { EditOperation, EditOperationFactory, OperationVersionManager } from './edit-operation';
 import { ConflictResolver } from './conflict-resolver';
 
+export { EditOperation };
+
 export interface CollaborativeEditorConfig {
   maxOperationHistory: number;
   syncInterval: number;
