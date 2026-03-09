@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for core/permission-manager.ts</title>
+    <title>Code coverage report for collaboration/edit-operation.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">core</a> permission-manager.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">collaboration</a> edit-operation.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.13% </span>
+                <span class="strong">92.45% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>52/59</span>
+                <span class='fraction'>49/53</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72% </span>
+                <span class="strong">73.8% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>18/25</span>
+                <span class='fraction'>31/42</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">94.11% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>16/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.93% </span>
+                <span class="strong">92.3% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>51/58</span>
+                <span class='fraction'>48/52</span>
             </div>
         
             
@@ -261,12 +261,69 @@
 <a name='L196'></a><a href='#L196'>196</a>
 <a name='L197'></a><a href='#L197'>197</a>
 <a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -281,31 +338,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -316,346 +348,497 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2731x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2740x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3340x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3340x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3337x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3340x</span>
+<span class="cline-any cline-yes">3340x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3340x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3337x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3335x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3337x</span>
+<span class="cline-any cline-yes">3335x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">2104x</span>
+<span class="cline-any cline-yes">2104x</span>
+<span class="cline-any cline-yes">2104x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2104x</span>
+<span class="cline-any cline-yes">2102x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">2004x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2000x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Room, RoomType } from './room-manager';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * 编辑操作定义模块
+ * 定义协作编辑中的基本操作类型和数据格式
+ */
 &nbsp;
-export enum Permission {
-  VIEW = 'view',
-  EDIT = 'edit',
-  MANAGE = 'manage'
-}
-&nbsp;
-export interface PermissionPolicy {
-  roomType: RoomType;
-  defaultPermissions: Permission[];
-  customPermissions?: Map&lt;string, Permission[]&gt;;
-}
-&nbsp;
-export interface User {
+export interface EditOperation {
   id: string;
-  name: string;
-  role: 'host' | 'viewer' | 'admin';
+  type: 'insert' | 'delete' | 'replace' | 'selection' | 'batch';
+  position: number;
+  content?: string;
+  length?: number;
+  timestamp: number;
+  author: string;
+  version: number;
+  metadata?: {
+    compressed?: boolean;
+    originalLength?: number;
+    batch?: boolean;
+    operationCount?: number;
+    operations?: Array&lt;{
+      id: string;
+      type: string;
+      position: number;
+    }&gt;;
+    originalOperations?: Array&lt;{
+      id: string;
+      type: string;
+      position: number;
+      timestamp: number;
+    }&gt;;
+    networkCompressed?: boolean;
+    originalEncoding?: string;
+    networkBatch?: boolean;
+  };
 }
 &nbsp;
-export class PermissionManager {
-  private policies: Map&lt;RoomType, PermissionPolicy&gt; = new Map();
+export interface SelectionOperation {
+  id: string;
+  type: 'selection';
+  start: number;
+  end: number;
+  timestamp: number;
+  author: string;
+}
 &nbsp;
-  constructor() {
-    this.initializeDefaultPolicies();
+export interface OperationBatch {
+  operations: EditOperation[];
+  version: number;
+  timestamp: number;
+  author: string;
+}
+&nbsp;
+export class EditOperationFactory {
+  static createInsert(
+    position: number,
+    content: string,
+    author: string,
+    version: number
+  ): EditOperation {
+    return {
+      id: this.generateId(),
+      type: 'insert',
+      position,
+      content,
+      timestamp: Date.now(),
+      author,
+      version
+    };
   }
 &nbsp;
-  /**
-   * 初始化默认权限策略
-   */
-  private initializeDefaultPolicies(): void {
-    // 公开房间策略
-    this.policies.set('public', {
-      roomType: 'public',
-      defaultPermissions: [Permission.VIEW]
-    });
-&nbsp;
-    // 私有房间策略
-    this.policies.set('private', {
-      roomType: 'private',
-      defaultPermissions: [Permission.VIEW]
-    });
-&nbsp;
-    // 邀请制房间策略
-    this.policies.set('invite-only', {
-      roomType: 'invite-only',
-      defaultPermissions: [Permission.VIEW]
-    });
+  static createDelete(
+    position: number,
+    length: number,
+    author: string,
+    version: number
+  ): EditOperation {
+    return {
+      id: this.generateId(),
+      type: 'delete',
+      position,
+      length,
+      timestamp: Date.now(),
+      author,
+      version
+    };
   }
 &nbsp;
+  static createReplace(
+    position: number,
+    length: number,
+    content: string,
+    author: string,
+    version: number
+  ): EditOperation {
+    return {
+      id: this.generateId(),
+      type: 'replace',
+      position,
+      length,
+      content,
+      timestamp: Date.now(),
+      author,
+      version
+    };
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  static </span>createSelection(
+    start: number,
+    end: number,
+    author: string
+  ): SelectionOperation {
+<span class="cstat-no" title="statement not covered" >    return {</span>
+      id: this.generateId(),
+      type: 'selection',
+      start,
+      end,
+      timestamp: Date.now(),
+      author
+    };
+  }
+&nbsp;
+  private static generateId(): string {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+}
+&nbsp;
+/**
+ * 操作转换器 - 实现 Operational Transformation 算法
+ */
+export class OperationTransformer {
   /**
-   * 验证用户权限
+   * 转换操作，确保并发操作的最终一致性
    */
-  hasPermission(room: Room, user: User, permission: Permission): boolean {
-    // 房间创建者拥有所有权限
-    if (user.id === room.host) {
-      return true;
+  static transform(
+    operation: EditOperation,
+    concurrentOperation: EditOperation
+  ): EditOperation {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (operation.type === 'selection') {
+<span class="cstat-no" title="statement not covered" >      return operation;</span>
     }
 &nbsp;
-    const policy = this.policies.get(room.type);
-    if (!policy) {
+    // 如果两个操作位置不重叠，直接返回原操作
+    if (this.isNonOverlapping(operation, concurrentOperation)) {
+      return operation;
+    }
+&nbsp;
+    // 处理重叠操作
+    return this.handleOverlappingOperations(operation, concurrentOperation);
+  }
+&nbsp;
+  private static isNonOverlapping(
+    op1: EditOperation,
+    op2: EditOperation
+  ): boolean {
+    const op1End = op1.position + (op1.type === 'insert' ? (op1.content?.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span> : (op1.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span>);
+    const op2End = op2.position + (op2.type === 'insert' ? (op2.content?.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span> : (op2.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span>);
+&nbsp;
+    // 对于删除操作，如果它在插入操作之前，应该被认为是重叠的（需要调整位置）
+    if (op2.type === 'delete' &amp;&amp; op2.position &lt; op1.position) {
+      return false;
+    }
+    if (op1.type === 'delete' &amp;&amp; op1.position &lt; op2.position) {
       return false;
     }
 &nbsp;
-    // 检查默认权限
-    if (policy.defaultPermissions.includes(permission)) {
-      return true;
-    }
-&nbsp;
-    // 检查自定义权限
-    if (policy.customPermissions &amp;&amp; policy.customPermissions.has(user.id)) {
-      const userPermissions = policy.customPermissions.get(user.id)!;
-      return userPermissions.includes(permission);
-    }
-&nbsp;
-    return false;
+    // 严格不重叠：两个操作完全不接触
+    return op1End &lt; op2.position || op2End &lt; op1.position;
   }
 &nbsp;
-  /**
-   * 获取用户在房间中的权限
-   */
-  getUserPermissions(room: Room, user: User): Permission[] {
-    const permissions: Permission[] = [];
-    
-    // 房间创建者拥有所有权限
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (user.id === room.host) {
-<span class="cstat-no" title="statement not covered" >      return Object.values(Permission);</span>
+  private static handleOverlappingOperations(
+    operation: EditOperation,
+    concurrentOperation: EditOperation
+  ): EditOperation {
+    // 简化版本：基于时间戳决定优先级
+    // 在实际应用中应该使用更复杂的 OT 算法
+    if (operation.timestamp &lt;= concurrentOperation.timestamp) {
+      return operation;
     }
 &nbsp;
-    const policy = this.policies.get(room.type);
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!policy) {
-<span class="cstat-no" title="statement not covered" >      return permissions;</span>
-    }
+    // 调整操作位置以考虑并发操作的影响
+    return this.adjustOperationPosition(operation, concurrentOperation);
+  }
 &nbsp;
-    // 添加默认权限
-    permissions.push(...policy.defaultPermissions);
+  private static adjustOperationPosition(
+    operation: EditOperation,
+    concurrentOperation: EditOperation
+  ): EditOperation {
+    let adjustedPosition = operation.position;
 &nbsp;
-    // 添加自定义权限
-    if (policy.customPermissions &amp;&amp; policy.customPermissions.has(user.id)) {
-      const userPermissions = policy.customPermissions.get(user.id)!;
-      userPermissions.forEach(permission =&gt; {
-        if (!permissions.includes(permission)) {
-          permissions.push(permission);
+    if (concurrentOperation.type === 'insert') {
+      // 如果并发操作是插入，且插入位置在当前操作之前
+      if (concurrentOperation.position &lt;= operation.position) {
+        adjustedPosition += (concurrentOperation.content?.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span>;
+      }
+    } else if (concurrentOperation.type === 'delete') {
+      // 如果并发操作是删除
+      const deleteEnd = concurrentOperation.position + (concurrentOperation.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span>;
+      
+      if (concurrentOperation.position &lt; operation.position) {
+        if (deleteEnd &lt;= operation.position) {
+          // 删除操作完全在当前操作之前
+          adjustedPosition -= (concurrentOperation.length || <span class="branch-1 cbranch-no" title="branch not covered" >0)</span>;
+        } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span><span class="missing-if-branch" title="else path not taken" >E</span>if (deleteEnd &gt; operation.position) {</span>
+          // 删除操作部分重叠或完全覆盖当前操作
+<span class="cstat-no" title="statement not covered" >          adjustedPosition = concurrentOperation.position;</span>
         }
-      });
+      }
     }
+    
+    return {
+      ...operation,
+      position: adjustedPosition
+    };
+  }
+}
 &nbsp;
-    return permissions;
+/**
+ * 操作版本管理器
+ */
+export class OperationVersionManager {
+  private currentVersion = 0;
+  private appliedOperations: Map&lt;number, EditOperation[]&gt; = new Map();
+&nbsp;
+  getNextVersion(): number {
+    this.currentVersion++;
+    return this.currentVersion;
   }
 &nbsp;
-  /**
-   * 设置自定义权限
-   */
-  setCustomPermission(roomType: RoomType, userId: string, permissions: Permission[]): void {
-    const policy = this.policies.get(roomType);
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!policy) {
-<span class="cstat-no" title="statement not covered" >      throw new Error(`未找到房间类型策略: ${roomType}`);</span>
-    }
-&nbsp;
-    if (!policy.customPermissions) {
-      policy.customPermissions = new Map();
-    }
-&nbsp;
-    policy.customPermissions.set(userId, permissions);
+  getCurrentVersion(): number {
+    return this.currentVersion;
   }
 &nbsp;
-  /**
-   * 移除自定义权限
-   */
-  removeCustomPermission(roomType: RoomType, userId: string): void {
-    const policy = this.policies.get(roomType);
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!policy || !policy.customPermissions) {
-<span class="cstat-no" title="statement not covered" >      return;</span>
-    }
-&nbsp;
-    policy.customPermissions.delete(userId);
-  }
-&nbsp;
-  /**
-   * 获取房间类型策略
-   */
-  getPolicy(roomType: RoomType): PermissionPolicy | undefined {
-    return this.policies.get(roomType);
-  }
-&nbsp;
-  /**
-   * 更新房间类型策略
-   */
-  updatePolicy(roomType: RoomType, policy: Partial&lt;PermissionPolicy&gt;): void {
-    const existingPolicy = this.policies.get(roomType);
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!existingPolicy) {
-<span class="cstat-no" title="statement not covered" >      throw new Error(`未找到房间类型策略: ${roomType}`);</span>
-    }
-&nbsp;
-    this.policies.set(roomType, {
-      ...existingPolicy,
-      ...policy
-    });
-  }
-&nbsp;
-  /**
-   * 验证房间访问权限
-   */
-  validateRoomAccess(room: Room, user: User, password?: string): boolean {
-    // 房间创建者总是可以访问
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (user.id === room.host) {
-<span class="cstat-no" title="statement not covered" >      return true;</span>
-    }
-&nbsp;
-    switch (room.type) {
-<span class="branch-0 cbranch-no" title="branch not covered" >      case 'public':</span>
-<span class="cstat-no" title="statement not covered" >        return true;</span>
-      
-      case 'private':
-        return room.password === password;
-      
-      case 'invite-only':
-        // 检查用户是否在参与者列表中
-        return room.participants.some(p =&gt; p.id === user.id);
-      
-      default:
-        return false;
+  addOperation(operation: EditOperation): void {
+    const versionOperations = this.appliedOperations.get(operation.version) || [];
+    versionOperations.push(operation);
+    this.appliedOperations.set(operation.version, versionOperations);
+    
+    // 更新当前版本到操作版本
+    if (operation.version &gt; this.currentVersion) {
+      this.currentVersion = operation.version;
     }
   }
 &nbsp;
-  /**
-   * 检查用户是否可以执行操作
-   */
-  canPerformAction(room: Room, user: User, action: Permission): boolean {
-    return this.hasPermission(room, user, action);
+  getOperationsByVersion(version: number): EditOperation[] {
+    return this.appliedOperations.get(version) || <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
   }
 &nbsp;
-  /**
-   * 获取所有权限策略
-   */
-  getAllPolicies(): Map&lt;RoomType, PermissionPolicy&gt; {
-    return new Map(this.policies);
+  getAllOperations(): EditOperation[] {
+    const allOperations: EditOperation[] = [];
+    for (const operations of this.appliedOperations.values()) {
+      allOperations.push(...operations);
+    }
+    return allOperations.sort((a, b) =&gt; a.timestamp - b.timestamp);
+  }
+&nbsp;
+  clear(): void {
+    this.appliedOperations.clear();
+    this.currentVersion = 0;
   }
 }</pre></td></tr></table></pre>
 
@@ -664,7 +847,7 @@ export class PermissionManager {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-09T06:50:11.180Z
+                at 2026-03-09T06:50:11.192Z
             </div>
         <script src="../prettify.js"></script>
         <script>
