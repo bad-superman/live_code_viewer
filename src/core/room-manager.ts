@@ -70,9 +70,23 @@ export class RoomManager extends EventEmitter {
    * 获取所有房间
    */
   getAllRooms(): Room[] {
-    return Array.from(this.rooms.values())
+    const activeRooms = Array.from(this.rooms.values())
       .filter(room => room.isActive)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    // 调试日志：检查房间状态
+    console.log('RoomManager: 获取房间列表', {
+      totalRooms: this.rooms.size,
+      activeRooms: activeRooms.length,
+      rooms: activeRooms.map(room => ({
+        id: room.id,
+        name: room.name,
+        participants: room.participants.length,
+        participantIds: room.participants.map(p => p.id)
+      }))
+    });
+    
+    return activeRooms;
   }
 
   /**

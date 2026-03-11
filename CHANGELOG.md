@@ -1,5 +1,30 @@
 # Live Code Viewer Changelog
 
+## [v0.1.4] - 2026-03-10
+
+### 🐛 Bug Fixes
+- **Fixed room participant count display**: Resolved inconsistency between displayed participant numbers and actual room information
+- **Enhanced room state synchronization**: Improved real-time status monitoring and participant tracking
+- **Added debug logging**: Better visibility into room management operations
+
+### 📚 User Experience Improvements
+- **Updated README.md**: Comprehensive usage guide with step-by-step instructions
+- **Interactive help panel**: Built-in assistance for collaboration features
+- **Enhanced status bar**: Clearer connection and room status information
+- **Improved documentation**: Better guidance for collaborative editing and comment systems
+
+### 🔧 Technical Improvements
+- **WebSocket operation broadcasting**: Fixed issues with operation synchronization
+- **Basic scroll synchronization**: Improved file position synchronization
+- **Room management optimization**: Better state persistence and recovery
+
+### ⚠️ Known Issues
+- **Terminal sharing feature**: Still in development, scheduled for v0.1.5
+- **Advanced conflict detection**: Performance optimizations ongoing
+- **Full scroll synchronization**: Complete implementation in progress
+
+---
+
 ## [v0.1.2] - 2026-03-08
 
 ### 🚀 New Features

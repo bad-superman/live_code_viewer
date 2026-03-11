@@ -1,8 +1,8 @@
 {
   "name": "live-code-viewer",
   "displayName": "Live Code Viewer",
-  "description": "局域网实时协作编程 - Live collaborative coding with real-time editing, comments, and file sharing",
-  "version": "0.1.3",
+  "description": "局域网实时协作编程 - 修复代码同步问题，增强房间状态管理，用户体验优化版",
+  "version": "0.1.4",
   "publisher": "RoyKou",
   "repository": {
     "type": "git",
