@@ -1,5 +1,23 @@
 # Live Code Viewer Changelog
 
+## [v0.1.6] - 2026-03-13
+
+### 🔧 Maintenance Release
+- **Code quality maintenance**: Ensured compilation and testing stability
+- **Dependency updates**: Maintained compatibility with latest VS Code versions
+- **Performance monitoring**: Continued monitoring of existing features
+- **Bug fix preparation**: Infrastructure improvements for upcoming features
+
+### 📝 Note
+This is a maintenance release to maintain the daily version rhythm while preparing for major feature additions in v0.1.7.
+
+### 🚀 Upcoming in v0.1.7
+- **Terminal sharing**: Real-time terminal output broadcasting
+- **Enhanced code synchronization**: Advanced conflict detection and scroll sync
+- **User experience improvements**: Better status feedback and error handling
+
+---
+
 ## [v0.1.4] - 2026-03-10
 
 ### 🐛 Bug Fixes
