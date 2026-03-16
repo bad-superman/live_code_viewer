@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
 import { ConnectionStatus } from '../core/connection-manager';
 import { Room } from '../core/room-manager';
+import { RecordingState } from '../recording/recording-manager';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
   private connectionStatusBarItem: vscode.StatusBarItem;
   private roomStatusBarItem: vscode.StatusBarItem;
+  private recordingStatusBarItem: vscode.StatusBarItem;
 
   constructor() {
     // 主状态栏项目
@@ -27,6 +29,12 @@ export class StatusBarManager {
     this.roomStatusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
       98
+    );
+
+    // 录制状态栏项目
+    this.recordingStatusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      97
     );
 
     this.showInitialState();
@@ -144,6 +152,30 @@ export class StatusBarManager {
   }
 
   /**
+   * 更新录制状态显示
+   */
+  updateRecordingStatus(state: RecordingState): void {
+    if (!state.isRecording) {
+      this.recordingStatusBarItem.hide();
+      return;
+    }
+
+    if (state.isPaused) {
+      this.recordingStatusBarItem.text = `$(debug-pause) 录制暂停 (${state.operationCount})`;
+      this.recordingStatusBarItem.tooltip = 'Live Code: 录制已暂停 - 点击恢复';
+      this.recordingStatusBarItem.color = '#ffff00';
+      this.recordingStatusBarItem.command = 'live-code-viewer.resumeRecording';
+    } else {
+      this.recordingStatusBarItem.text = `$(record) 录制中 (${state.operationCount})`;
+      this.recordingStatusBarItem.tooltip = `Live Code: 正在录制 - ${state.operationCount} 个操作 - 点击暂停`;
+      this.recordingStatusBarItem.color = '#ff0000';
+      this.recordingStatusBarItem.command = 'live-code-viewer.pauseRecording';
+    }
+
+    this.recordingStatusBarItem.show();
+  }
+
+  /**
    * 显示临时消息
    */
   showTemporaryMessage(message: string, type: 'info' | 'warning' | 'error' = 'info'): void {
@@ -175,5 +207,6 @@ export class StatusBarManager {
     this.statusBarItem.dispose();
     this.connectionStatusBarItem.dispose();
     this.roomStatusBarItem.dispose();
+    this.recordingStatusBarItem.dispose();
   }
 }

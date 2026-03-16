@@ -260,10 +260,47 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // ============ 状态栏显示 ============
+  // ============ 录制命令 ============
 
-  // TODO: 实现状态栏显示连接状态和房间信息
-  // 这里可以添加状态栏项目来显示实时状态
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.startRecording',
+      async () => {
+        if (!appManager) return;
+        await appManager.startRecording();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.stopRecording',
+      async () => {
+        if (!appManager) return;
+        await appManager.stopRecording();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.pauseRecording',
+      async () => {
+        if (!appManager) return;
+        await appManager.pauseRecording();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.resumeRecording',
+      async () => {
+        if (!appManager) return;
+        await appManager.resumeRecording();
+      }
+    )
+  );
 
   console.log('Live Code Viewer v0.1.0 已激活 - 模块化架构');
 }

@@ -15,6 +15,8 @@ import { ShortcutManager } from '../ui/shortcut-manager';
 import { ThemeAdapter } from '../ui/theme-adapter';
 import { PerformancePanel } from '../ui/performance-panel';
 import { ErrorHandler } from './error-handler';
+import { RecordingManager, RecordingSession } from '../recording/recording-manager';
+import { SessionStorage } from '../recording/session-storage';
 
 export class AppManager {
   private connectionManager: ConnectionManager;
@@ -25,6 +27,10 @@ export class AppManager {
   private cursorSyncManager: CursorSyncManager;
   private participantStatusManager: ParticipantStatusManager;
   private collaborationManager: CollaborationManager;
+  
+  // 录制模块
+  private recordingManager: RecordingManager;
+  private sessionStorage: SessionStorage;
   
   // 用户体验模块
   private shortcutManager: ShortcutManager;
@@ -51,6 +57,10 @@ export class AppManager {
     this.cursorSyncManager = new CursorSyncManager(context);
     this.participantStatusManager = new ParticipantStatusManager(context);
     this.collaborationManager = CollaborationManager.getInstance();
+    
+    // 初始化录制模块
+    this.recordingManager = new RecordingManager();
+    this.sessionStorage = new SessionStorage();
     
     // 初始化用户体验模块
     this.shortcutManager = new ShortcutManager(context);
@@ -129,6 +139,11 @@ export class AppManager {
       if (currentRoom && currentRoom.id === roomId) {
         this.statusBarManager.showTemporaryMessage('参与者离开房间', 'info');
       }
+    });
+
+    // 监听录制状态变化
+    this.recordingManager.onRecordingStateChange((state) => {
+      this.statusBarManager.updateRecordingStatus(state);
     });
   }
 
@@ -414,6 +429,97 @@ export class AppManager {
     return this.collaborationManager.getCollaborationStats();
   }
 
+  // ============ 录制功能 ============
+
+  /**
+   * 开始录制
+   */
+  async startRecording(): Promise<void> {
+    const state = this.recordingManager.getRecordingState();
+    if (state.isRecording) {
+      vscode.window.showWarningMessage('Live Code: 正在录制中');
+      return;
+    }
+
+    const title = await vscode.window.showInputBox({
+      prompt: '输入录制标题（可选）',
+      placeHolder: `录制 - ${new Date().toLocaleString()}`,
+    });
+
+    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    try {
+      await this.recordingManager.startRecording(sessionId, title || undefined);
+      this.statusBarManager.showTemporaryMessage('录制已开始');
+      this.usageTracker.trackCommandUsage('startRecording');
+    } catch (err: any) {
+      vscode.window.showErrorMessage(`Live Code: 开始录制失败 - ${err.message}`);
+    }
+  }
+
+  /**
+   * 停止录制
+   */
+  async stopRecording(): Promise<void> {
+    const state = this.recordingManager.getRecordingState();
+    if (!state.isRecording) {
+      vscode.window.showWarningMessage('Live Code: 当前未在录制');
+      return;
+    }
+
+    try {
+      const session = await this.recordingManager.stopRecording();
+      await this.sessionStorage.saveSession(session);
+
+      const duration = ((session.endTime - session.startTime) / 1000).toFixed(1);
+      vscode.window.showInformationMessage(
+        `Live Code: 录制完成 - ${session.operations.length} 个操作, 时长 ${duration}s`
+      );
+      this.usageTracker.trackCommandUsage('stopRecording');
+    } catch (err: any) {
+      vscode.window.showErrorMessage(`Live Code: 停止录制失败 - ${err.message}`);
+    }
+  }
+
+  /**
+   * 暂停录制
+   */
+  async pauseRecording(): Promise<void> {
+    const state = this.recordingManager.getRecordingState();
+    if (!state.isRecording || state.isPaused) {
+      return;
+    }
+
+    await this.recordingManager.pauseRecording();
+    this.statusBarManager.showTemporaryMessage('录制已暂停');
+  }
+
+  /**
+   * 恢复录制
+   */
+  async resumeRecording(): Promise<void> {
+    const state = this.recordingManager.getRecordingState();
+    if (!state.isRecording || !state.isPaused) {
+      return;
+    }
+
+    await this.recordingManager.resumeRecording();
+    this.statusBarManager.showTemporaryMessage('录制已恢复');
+  }
+
+  /**
+   * 获取录制管理器
+   */
+  getRecordingManager(): RecordingManager {
+    return this.recordingManager;
+  }
+
+  /**
+   * 获取会话存储
+   */
+  getSessionStorage(): SessionStorage {
+    return this.sessionStorage;
+  }
+
   dispose(): void {
     this.connectionManager.dispose();
     this.roomManager.dispose();
@@ -426,6 +532,10 @@ export class AppManager {
     this.themeAdapter.dispose();
     this.performancePanel.dispose();
     this.errorHandler.dispose();
+    
+    // 录制模块销毁
+    this.recordingManager.dispose();
+    this.sessionStorage.dispose();
     
     this.host?.dispose();
     this.host = null;
