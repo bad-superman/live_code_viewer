@@ -58,6 +58,42 @@
       {
         "command": "live-code-viewer.showRoomPanel",
         "title": "Live Code: Show Room Panel"
+      },
+      {
+        "command": "live-code-viewer.startRecording",
+        "title": "Live Code: Start Recording"
+      },
+      {
+        "command": "live-code-viewer.stopRecording",
+        "title": "Live Code: Stop Recording"
+      },
+      {
+        "command": "live-code-viewer.pauseRecording",
+        "title": "Live Code: Pause Recording"
+      },
+      {
+        "command": "live-code-viewer.resumeRecording",
+        "title": "Live Code: Resume Recording"
+      },
+      {
+        "command": "live-code-viewer.startPlayback",
+        "title": "Live Code: Start Playback"
+      },
+      {
+        "command": "live-code-viewer.stopPlayback",
+        "title": "Live Code: Stop Playback"
+      },
+      {
+        "command": "live-code-viewer.pausePlayback",
+        "title": "Live Code: Pause Playback"
+      },
+      {
+        "command": "live-code-viewer.resumePlayback",
+        "title": "Live Code: Resume Playback"
+      },
+      {
+        "command": "live-code-viewer.listSessions",
+        "title": "Live Code: List Sessions"
       }
     ],
     "configuration": {
