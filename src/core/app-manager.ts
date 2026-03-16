@@ -17,6 +17,7 @@ import { PerformancePanel } from '../ui/performance-panel';
 import { ErrorHandler } from './error-handler';
 import { RecordingManager, RecordingSession } from '../recording/recording-manager';
 import { SessionStorage } from '../recording/session-storage';
+import { PlaybackManager } from '../recording/playback-manager';
 
 export class AppManager {
   private connectionManager: ConnectionManager;
@@ -31,6 +32,7 @@ export class AppManager {
   // 录制模块
   private recordingManager: RecordingManager;
   private sessionStorage: SessionStorage;
+  private playbackManager: PlaybackManager;
   
   // 用户体验模块
   private shortcutManager: ShortcutManager;
@@ -61,6 +63,7 @@ export class AppManager {
     // 初始化录制模块
     this.recordingManager = new RecordingManager();
     this.sessionStorage = new SessionStorage();
+    this.playbackManager = new PlaybackManager();
     
     // 初始化用户体验模块
     this.shortcutManager = new ShortcutManager(context);
@@ -144,6 +147,11 @@ export class AppManager {
     // 监听录制状态变化
     this.recordingManager.onRecordingStateChange((state) => {
       this.statusBarManager.updateRecordingStatus(state);
+    });
+
+    // 监听播放状态变化
+    this.playbackManager.onPlaybackStateChange((state) => {
+      this.statusBarManager.updatePlaybackStatus(state);
     });
   }
 
@@ -520,6 +528,120 @@ export class AppManager {
     return this.sessionStorage;
   }
 
+  /**
+   * 获取播放管理器
+   */
+  getPlaybackManager(): PlaybackManager {
+    return this.playbackManager;
+  }
+
+  // ============ 播放功能方法 ============
+
+  /**
+   * 开始播放录制会话
+   */
+  async startPlayback(sessionId: string): Promise<void> {
+    try {
+      // 加载会话
+      const session = await this.sessionStorage.loadSession(sessionId);
+      if (!session) {
+        throw new Error(`会话 ${sessionId} 不存在`);
+      }
+
+      // 加载会话到播放管理器
+      await this.playbackManager.loadSession(session);
+      
+      // 开始播放
+      await this.playbackManager.play();
+      this.statusBarManager.showTemporaryMessage(`开始播放: ${session.title || sessionId}`);
+      this.usageTracker.trackCommandUsage('startPlayback');
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`播放失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 停止播放
+   */
+  async stopPlayback(): Promise<void> {
+    try {
+      await this.playbackManager.stop();
+      this.statusBarManager.showTemporaryMessage('播放已停止');
+      this.usageTracker.trackCommandUsage('stopPlayback');
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`停止播放失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 暂停播放
+   */
+  async pausePlayback(): Promise<void> {
+    try {
+      await this.playbackManager.pause();
+      this.statusBarManager.showTemporaryMessage('播放已暂停');
+      this.usageTracker.trackCommandUsage('pausePlayback');
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`暂停播放失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 恢复播放
+   */
+  async resumePlayback(): Promise<void> {
+    try {
+      await this.playbackManager.resume();
+      this.statusBarManager.showTemporaryMessage('播放已恢复');
+      this.usageTracker.trackCommandUsage('resumePlayback');
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`恢复播放失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 跳转到指定时间
+   */
+  async seekPlayback(time: number): Promise<void> {
+    try {
+      await this.playbackManager.seek(time);
+      this.usageTracker.trackCommandUsage('seekPlayback');
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`跳转失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 设置播放速度
+   */
+  async setPlaybackSpeed(speed: number): Promise<void> {
+    try {
+      await this.playbackManager.setSpeed(speed);
+      this.statusBarManager.showTemporaryMessage(`播放速度: ${speed}x`);
+      this.usageTracker.trackCommandUsage('setPlaybackSpeed');
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`设置速度失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 获取会话列表
+   */
+  async getSessionList(): Promise<Array<{id: string, title: string, createdAt: number, duration: number}>> {
+    try {
+      const sessions = await this.sessionStorage.listSessions();
+      return sessions.map(session => ({
+        id: session.id,
+        title: session.title || `会话 ${session.id.substring(0, 8)}`,
+        createdAt: session.startTime,
+        duration: session.duration || 0
+      }));
+    } catch (error: any) {
+      vscode.window.showErrorMessage(`获取会话列表失败: ${error.message}`);
+      return [];
+    }
+  }
+
   dispose(): void {
     this.connectionManager.dispose();
     this.roomManager.dispose();
@@ -536,6 +658,7 @@ export class AppManager {
     // 录制模块销毁
     this.recordingManager.dispose();
     this.sessionStorage.dispose();
+    this.playbackManager.dispose();
     
     this.host?.dispose();
     this.host = null;

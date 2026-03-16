@@ -2,12 +2,14 @@ import * as vscode from 'vscode';
 import { ConnectionStatus } from '../core/connection-manager';
 import { Room } from '../core/room-manager';
 import { RecordingState } from '../recording/recording-manager';
+import { PlaybackState } from '../recording/playback-manager';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
   private connectionStatusBarItem: vscode.StatusBarItem;
   private roomStatusBarItem: vscode.StatusBarItem;
   private recordingStatusBarItem: vscode.StatusBarItem;
+  private playbackStatusBarItem: vscode.StatusBarItem;
 
   constructor() {
     // 主状态栏项目
@@ -35,6 +37,12 @@ export class StatusBarManager {
     this.recordingStatusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
       97
+    );
+
+    // 播放状态栏项目
+    this.playbackStatusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      96
     );
 
     this.showInitialState();
@@ -173,6 +181,38 @@ export class StatusBarManager {
     }
 
     this.recordingStatusBarItem.show();
+  }
+
+  /**
+   * 更新播放状态显示
+   */
+  updatePlaybackStatus(state: PlaybackState): void {
+    if (!state.isPlaying) {
+      this.playbackStatusBarItem.hide();
+      return;
+    }
+
+    // 格式化时间显示
+    const formatTime = (ms: number): string => {
+      const seconds = Math.floor(ms / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
+    if (state.isPaused) {
+      this.playbackStatusBarItem.text = `$(debug-pause) ${formatTime(state.currentTime)}/${formatTime(state.duration)}`;
+      this.playbackStatusBarItem.tooltip = `Live Code: 播放已暂停 - ${state.speed}x - 点击恢复`;
+      this.playbackStatusBarItem.color = '#ffff00';
+      this.playbackStatusBarItem.command = 'live-code-viewer.resumePlayback';
+    } else {
+      this.playbackStatusBarItem.text = `$(play) ${formatTime(state.currentTime)}/${formatTime(state.duration)}`;
+      this.playbackStatusBarItem.tooltip = `Live Code: 正在播放 - ${state.speed}x - 点击暂停`;
+      this.playbackStatusBarItem.color = '#00ff00';
+      this.playbackStatusBarItem.command = 'live-code-viewer.pausePlayback';
+    }
+
+    this.playbackStatusBarItem.show();
   }
 
   /**

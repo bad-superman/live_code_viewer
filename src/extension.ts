@@ -302,6 +302,103 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // ============ 播放命令 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.startPlayback',
+      async () => {
+        if (!appManager) return;
+        
+        // 获取会话列表
+        const sessions = await appManager.getSessionList();
+        if (sessions.length === 0) {
+          vscode.window.showInformationMessage('没有可播放的录制会话');
+          return;
+        }
+
+        // 让用户选择会话
+        const sessionItems = sessions.map(session => ({
+          label: session.title,
+          description: `时长: ${Math.round(session.duration / 1000)}秒`,
+          detail: `创建时间: ${new Date(session.createdAt).toLocaleString()}`,
+          sessionId: session.id
+        }));
+
+        const selected = await vscode.window.showQuickPick(sessionItems, {
+          placeHolder: '选择要播放的录制会话'
+        });
+
+        if (selected) {
+          await appManager.startPlayback(selected.sessionId);
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.stopPlayback',
+      async () => {
+        if (!appManager) return;
+        await appManager.stopPlayback();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.pausePlayback',
+      async () => {
+        if (!appManager) return;
+        await appManager.pausePlayback();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.resumePlayback',
+      async () => {
+        if (!appManager) return;
+        await appManager.resumePlayback();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.listSessions',
+      async () => {
+        if (!appManager) return;
+        
+        const sessions = await appManager.getSessionList();
+        if (sessions.length === 0) {
+          vscode.window.showInformationMessage('暂无录制会话');
+          return;
+        }
+
+        const sessionItems = sessions.map(session => ({
+          label: session.title,
+          description: `ID: ${session.id.substring(0, 8)}...`,
+          detail: `创建: ${new Date(session.createdAt).toLocaleString()} | 时长: ${Math.round(session.duration / 1000)}秒`
+        }));
+
+        const selected = await vscode.window.showQuickPick(sessionItems, {
+          placeHolder: '录制会话列表 (选择查看详情)'
+        });
+
+        if (selected) {
+          vscode.window.showInformationMessage(
+            `会话详情: ${selected.label}\n` +
+            `ID: ${selected.description}\n` +
+            `详细信息: ${selected.detail}`
+          );
+        }
+      }
+    )
+  );
+
   console.log('Live Code Viewer v0.1.0 已激活 - 模块化架构');
 }
 

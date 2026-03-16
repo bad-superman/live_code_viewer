@@ -74,6 +74,26 @@
       {
         "command": "live-code-viewer.resumeRecording",
         "title": "Live Code: Resume Recording"
+      },
+      {
+        "command": "live-code-viewer.startPlayback",
+        "title": "Live Code: Start Playback"
+      },
+      {
+        "command": "live-code-viewer.stopPlayback",
+        "title": "Live Code: Stop Playback"
+      },
+      {
+        "command": "live-code-viewer.pausePlayback",
+        "title": "Live Code: Pause Playback"
+      },
+      {
+        "command": "live-code-viewer.resumePlayback",
+        "title": "Live Code: Resume Playback"
+      },
+      {
+        "command": "live-code-viewer.listSessions",
+        "title": "Live Code: List Sessions"
       }
     ],
     "configuration": {
