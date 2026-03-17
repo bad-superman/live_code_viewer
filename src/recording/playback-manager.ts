@@ -32,6 +32,15 @@ export interface TimelineMarker {
   color?: string;
 }
 
+export interface ProgressInfo {
+  currentTime: number;
+  duration: number;
+  progress: number; // 0-1
+  speed: number;
+  operationIndex: number;
+  totalOperations: number;
+}
+
 export class PlaybackManager {
   private state: PlaybackState = {
     isPlaying: false,
@@ -46,6 +55,7 @@ export class PlaybackManager {
   private playbackInterval?: NodeJS.Timeout;
   private readonly onStateChange = new EventEmitter<PlaybackState>();
   private readonly onTimeUpdate = new EventEmitter<number>();
+  private readonly onProgress = new EventEmitter<ProgressInfo>();
 
   constructor() {
     // Initialize playback manager
@@ -142,6 +152,12 @@ export class PlaybackManager {
     const clampedTime = Math.max(0, Math.min(timestamp, this.state.duration));
     this.state.currentTime = clampedTime;
     
+    // 如果正在播放，需要重新计算起始时间
+    if (this.state.isPlaying && !this.state.isPaused) {
+      this.stopPlaybackLoop();
+      this.startPlaybackLoop();
+    }
+    
     this.onTimeUpdate.fire(this.state.currentTime);
     this.onStateChange.fire(this.state);
 
@@ -215,6 +231,13 @@ export class PlaybackManager {
   }
 
   /**
+   * 进度事件
+   */
+  get onPlaybackProgress() {
+    return this.onProgress.event;
+  }
+
+  /**
    * 创建时间轴
    */
   private createTimeline(session: RecordingSession): Timeline {
@@ -284,19 +307,28 @@ export class PlaybackManager {
       return;
     }
 
-    const updateInterval = 100; // 100ms 更新间隔
+    const updateInterval = 16; // 约60fps，提高响应速度
     const startTime = Date.now() - this.state.currentTime / this.state.speed;
+    let lastUpdateTime = Date.now();
 
     this.playbackInterval = setInterval(() => {
       if (!this.state.isPlaying || this.state.isPaused || !this.currentSession) {
         return;
       }
 
-      const elapsed = (Date.now() - startTime) * this.state.speed;
+      const now = Date.now();
+      const delta = now - lastUpdateTime;
+      lastUpdateTime = now;
+
+      // 基于实际经过的时间计算进度，避免setInterval不精确
+      const elapsed = (now - startTime) * this.state.speed;
       const newTime = Math.min(elapsed, this.state.duration);
 
       this.state.currentTime = newTime;
       this.onTimeUpdate.fire(newTime);
+      
+      // 发送进度信息
+      this.fireProgressEvent(newTime);
 
       // 检查是否播放完成
       if (newTime >= this.state.duration) {
@@ -316,12 +348,47 @@ export class PlaybackManager {
   }
 
   /**
+   * 发送进度事件
+   */
+  private fireProgressEvent(currentTime: number): void {
+    if (!this.currentSession) {
+      return;
+    }
+
+    const progress = this.state.duration > 0 ? currentTime / this.state.duration : 0;
+    
+    // 计算当前操作索引
+    let operationIndex = 0;
+    for (let i = 0; i < this.currentSession.operations.length; i++) {
+      const op = this.currentSession.operations[i];
+      const opTime = op.timestamp - this.currentSession.startTime;
+      if (opTime <= currentTime) {
+        operationIndex = i + 1;
+      } else {
+        break;
+      }
+    }
+
+    const progressInfo: ProgressInfo = {
+      currentTime,
+      duration: this.state.duration,
+      progress,
+      speed: this.state.speed,
+      operationIndex,
+      totalOperations: this.currentSession.operations.length
+    };
+
+    this.onProgress.fire(progressInfo);
+  }
+
+  /**
    * 清理资源
    */
   dispose(): void {
     this.stopPlaybackLoop();
     this.onStateChange.dispose();
     this.onTimeUpdate.dispose();
+    this.onProgress.dispose();
     this.currentSession = undefined;
     this.timeline = undefined;
     this.state = {

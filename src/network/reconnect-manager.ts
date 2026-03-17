@@ -10,6 +10,7 @@ export class ReconnectManager {
   private currentDelay: number;
   private isReconnecting: boolean = false;
   private timeoutId: NodeJS.Timeout | null = null;
+  private cancelled: boolean = false;
 
   constructor(private strategy: ReconnectStrategy) {
     this.currentDelay = strategy.initialDelay;
@@ -24,8 +25,9 @@ export class ReconnectManager {
     }
 
     this.isReconnecting = true;
+    this.cancelled = false;
 
-    while (this.attempts < this.strategy.maxRetries) {
+    while (this.attempts < this.strategy.maxRetries && !this.cancelled) {
       try {
         console.log(`Live Code: 尝试重连 (${this.attempts + 1}/${this.strategy.maxRetries})`);
         
@@ -46,6 +48,12 @@ export class ReconnectManager {
           throw new Error(`重连失败: ${error instanceof Error ? error.message : '未知错误'}`);
         }
 
+        // 检查是否被取消
+        if (this.cancelled) {
+          this.reset();
+          return;
+        }
+
         // 计算下一次重连延迟
         this.currentDelay = Math.min(
           this.currentDelay * this.strategy.backoffMultiplier,
@@ -54,10 +62,24 @@ export class ReconnectManager {
 
         console.log(`Live Code: 重连失败，${this.currentDelay}ms 后重试`);
         
-        // 等待延迟
-        await new Promise(resolve => {
-          this.timeoutId = setTimeout(resolve, this.currentDelay);
-        });
+        // 等待延迟，但可被取消
+        try {
+          await new Promise<void>((resolve, reject) => {
+            this.timeoutId = setTimeout(resolve, this.currentDelay);
+            
+            // 如果被取消，立即拒绝promise
+            if (this.cancelled) {
+              clearTimeout(this.timeoutId);
+              this.timeoutId = null;
+              reject(new Error('Cancelled'));
+            }
+          });
+        } catch (e) {
+          // 如果等待被取消，退出重连
+          this.reset();
+          return;
+        }
+        
         this.timeoutId = null;
       }
     }
@@ -69,9 +91,8 @@ export class ReconnectManager {
    * 取消重连
    */
   cancel(): void {
+    this.cancelled = true;
     this.isReconnecting = false;
-    this.attempts = 0;
-    this.currentDelay = this.strategy.initialDelay;
     
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
@@ -84,6 +105,7 @@ export class ReconnectManager {
    */
   reset(): void {
     this.isReconnecting = false;
+    this.cancelled = false;
     this.attempts = 0;
     this.currentDelay = this.strategy.initialDelay;
     

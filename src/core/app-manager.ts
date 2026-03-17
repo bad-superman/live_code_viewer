@@ -18,6 +18,7 @@ import { ErrorHandler } from './error-handler';
 import { RecordingManager, RecordingSession } from '../recording/recording-manager';
 import { SessionStorage } from '../recording/session-storage';
 import { PlaybackManager } from '../recording/playback-manager';
+import { PerformanceMonitor } from '../performance/performance-monitor';
 
 export class AppManager {
   private connectionManager: ConnectionManager;
@@ -33,6 +34,9 @@ export class AppManager {
   private recordingManager: RecordingManager;
   private sessionStorage: SessionStorage;
   private playbackManager: PlaybackManager;
+  
+  // 性能监控
+  private performanceMonitor: PerformanceMonitor;
   
   // 用户体验模块
   private shortcutManager: ShortcutManager;
@@ -64,6 +68,9 @@ export class AppManager {
     this.recordingManager = new RecordingManager();
     this.sessionStorage = new SessionStorage();
     this.playbackManager = new PlaybackManager();
+    
+    // 初始化性能监控
+    this.performanceMonitor = new PerformanceMonitor();
     
     // 初始化用户体验模块
     this.shortcutManager = new ShortcutManager(context);
@@ -188,6 +195,9 @@ export class AppManager {
       // 更新状态栏
       this.statusBarManager.updateHostingStatus(true);
       this.statusBarManager.showTemporaryMessage('直播已开始');
+      
+      // 启动性能监控
+      this.performanceMonitor.startMonitoring();
       
       // 跟踪使用数据
       this.usageTracker.trackCommandUsage('startHosting');
@@ -659,6 +669,7 @@ export class AppManager {
     this.recordingManager.dispose();
     this.sessionStorage.dispose();
     this.playbackManager.dispose();
+    this.performanceMonitor.dispose();
     
     this.host?.dispose();
     this.host = null;

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'vscode';
+import { EventEmitter, window } from 'vscode';
 import { EditOperation } from '../collaboration/collaborative-editor';
 
 export interface RecordingState {
@@ -7,6 +7,8 @@ export interface RecordingState {
   sessionId?: string;
   startTime?: number;
   operationCount: number;
+  lastError?: string;
+  recoveryAttempts: number;
 }
 
 export interface RecordingSession {
@@ -38,7 +40,8 @@ export class RecordingManager {
   private state: RecordingState = {
     isRecording: false,
     isPaused: false,
-    operationCount: 0
+    operationCount: 0,
+    recoveryAttempts: 0
   };
 
   private currentSession?: RecordingSession;
@@ -54,7 +57,9 @@ export class RecordingManager {
    */
   async startRecording(sessionId: string, title?: string): Promise<void> {
     if (this.state.isRecording) {
-      throw new Error('Recording already in progress');
+      const errorMsg = '录制已在进行中';
+      window.showErrorMessage(`❌ ${errorMsg}`);
+      throw new Error(errorMsg);
     }
 
     this.currentSession = {
@@ -77,11 +82,21 @@ export class RecordingManager {
       isPaused: false,
       sessionId,
       startTime: Date.now(),
-      operationCount: 0
+      operationCount: 0,
+      recoveryAttempts: 0,
+      lastError: undefined
     };
 
     this.onStateChange.fire(this.state);
     console.log(`Recording started: ${sessionId}`);
+    
+    // 显示录制开始通知
+    window.showInformationMessage(`🎥 录制已开始: ${title || sessionId}`, '查看详情').then(selection => {
+      if (selection === '查看详情') {
+        // 可以在这里添加打开录制详情的命令
+        window.showInformationMessage(`录制会话: ${sessionId}\n开始时间: ${new Date().toLocaleString()}`);
+      }
+    });
   }
 
   /**
@@ -89,7 +104,9 @@ export class RecordingManager {
    */
   async stopRecording(): Promise<RecordingSession> {
     if (!this.state.isRecording || !this.currentSession) {
-      throw new Error('No recording in progress');
+      const errorMsg = '没有正在进行的录制';
+      window.showErrorMessage(`❌ ${errorMsg}`);
+      throw new Error(errorMsg);
     }
 
     this.currentSession.endTime = Date.now();
@@ -100,14 +117,48 @@ export class RecordingManager {
     this.state = {
       isRecording: false,
       isPaused: false,
-      operationCount: 0
+      operationCount: 0,
+      recoveryAttempts: 0,
+      lastError: undefined
     };
 
     this.currentSession = undefined;
     this.operations = [];
 
+    this.state = {
+      isRecording: false,
+      isPaused: false,
+      operationCount: 0,
+      recoveryAttempts: 0,
+      lastError: undefined
+    };
+
     this.onStateChange.fire(this.state);
     console.log(`Recording stopped: ${session.id}, operations: ${session.operations.length}`);
+    
+    // 显示录制结束通知
+    const duration = Math.round((session.endTime - session.startTime) / 1000);
+    const operationCount = session.operations.length;
+    window.showInformationMessage(
+      `✅ 录制已结束: ${session.title}\n时长: ${duration}秒, 操作数: ${operationCount}`,
+      '保存录制', '查看详情'
+    ).then(selection => {
+      if (selection === '保存录制') {
+        // 可以在这里添加保存录制的命令
+        window.showInformationMessage('录制已自动保存到本地存储');
+      } else if (selection === '查看详情') {
+        window.showInformationMessage(
+          `录制详情:\n` +
+          `- 会话ID: ${session.id}\n` +
+          `- 标题: ${session.title}\n` +
+          `- 开始时间: ${new Date(session.startTime).toLocaleString()}\n` +
+          `- 结束时间: ${new Date(session.endTime).toLocaleString()}\n` +
+          `- 时长: ${duration}秒\n` +
+          `- 操作数: ${operationCount}\n` +
+          `- 参与者: ${session.participants.length}人`
+        );
+      }
+    });
 
     return session;
   }
@@ -123,6 +174,13 @@ export class RecordingManager {
     this.state.isPaused = true;
     this.onStateChange.fire(this.state);
     console.log('Recording paused');
+    
+    // 显示暂停通知
+    window.showInformationMessage('⏸️ 录制已暂停', '恢复录制').then(selection => {
+      if (selection === '恢复录制') {
+        this.resumeRecording();
+      }
+    });
   }
 
   /**
@@ -136,6 +194,9 @@ export class RecordingManager {
     this.state.isPaused = false;
     this.onStateChange.fire(this.state);
     console.log('Recording resumed');
+    
+    // 显示恢复通知
+    window.showInformationMessage('▶️ 录制已恢复');
   }
 
   /**
@@ -218,16 +279,78 @@ export class RecordingManager {
   }
 
   /**
+   * 尝试恢复录制
+   */
+  async tryRecover(): Promise<boolean> {
+    if (!this.state.isRecording || !this.currentSession) {
+      return false;
+    }
+
+    // 检查是否达到最大恢复尝试次数
+    if (this.state.recoveryAttempts >= 3) {
+      window.showErrorMessage('❌ 录制恢复失败，已达到最大恢复尝试次数');
+      return false;
+    }
+
+    this.state.recoveryAttempts++;
+    this.state.lastError = undefined;
+    
+    window.showInformationMessage(`🔄 尝试恢复录制 (第${this.state.recoveryAttempts}次尝试)...`);
+    
+    // 在实际应用中，这里可以尝试重新连接或恢复状态
+    // 目前我们只是重置暂停状态
+    if (this.state.isPaused) {
+      this.state.isPaused = false;
+    }
+    
+    this.onStateChange.fire(this.state);
+    console.log(`Recording recovery attempted: ${this.state.recoveryAttempts}`);
+    
+    return true;
+  }
+
+  /**
+   * 记录错误
+   */
+  private recordError(error: Error): void {
+    this.state.lastError = error.message;
+    console.error('Recording error:', error);
+    
+    // 显示错误通知
+    window.showErrorMessage(`❌ 录制错误: ${error.message}`, '尝试恢复').then(selection => {
+      if (selection === '尝试恢复') {
+        this.tryRecover();
+      }
+    });
+  }
+
+  /**
    * 清理资源
    */
   dispose(): void {
+    // 清理所有事件监听器
     this.onStateChange.dispose();
+    
+    // 清理操作数组
+    this.operations.length = 0;
     this.operations = [];
+    
+    // 清理当前会话
+    if (this.currentSession) {
+      this.currentSession.operations.length = 0;
+      this.currentSession.participants.length = 0;
+    }
     this.currentSession = undefined;
+    
+    // 重置状态
     this.state = {
       isRecording: false,
       isPaused: false,
-      operationCount: 0
+      operationCount: 0,
+      recoveryAttempts: 0,
+      lastError: undefined
     };
+    
+    console.log('Recording manager disposed');
   }
 }

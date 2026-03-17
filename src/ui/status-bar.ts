@@ -168,14 +168,23 @@ export class StatusBarManager {
       return;
     }
 
+    // 计算录制时长
+    let durationText = '';
+    if (state.startTime) {
+      const duration = Math.floor((Date.now() - state.startTime) / 1000);
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      durationText = ` ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
     if (state.isPaused) {
-      this.recordingStatusBarItem.text = `$(debug-pause) 录制暂停 (${state.operationCount})`;
-      this.recordingStatusBarItem.tooltip = 'Live Code: 录制已暂停 - 点击恢复';
+      this.recordingStatusBarItem.text = `$(debug-pause) 录制暂停${durationText} (${state.operationCount})`;
+      this.recordingStatusBarItem.tooltip = `Live Code: 录制已暂停\n时长:${durationText}\n操作数: ${state.operationCount}\n点击恢复录制`;
       this.recordingStatusBarItem.color = '#ffff00';
       this.recordingStatusBarItem.command = 'live-code-viewer.resumeRecording';
     } else {
-      this.recordingStatusBarItem.text = `$(record) 录制中 (${state.operationCount})`;
-      this.recordingStatusBarItem.tooltip = `Live Code: 正在录制 - ${state.operationCount} 个操作 - 点击暂停`;
+      this.recordingStatusBarItem.text = `$(record) 录制中${durationText} (${state.operationCount})`;
+      this.recordingStatusBarItem.tooltip = `Live Code: 正在录制\n时长:${durationText}\n操作数: ${state.operationCount}\n点击暂停录制`;
       this.recordingStatusBarItem.color = '#ff0000';
       this.recordingStatusBarItem.command = 'live-code-viewer.pauseRecording';
     }
@@ -200,14 +209,17 @@ export class StatusBarManager {
       return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
 
+    // 计算进度百分比
+    const progressPercent = state.duration > 0 ? Math.round((state.currentTime / state.duration) * 100) : 0;
+    
     if (state.isPaused) {
-      this.playbackStatusBarItem.text = `$(debug-pause) ${formatTime(state.currentTime)}/${formatTime(state.duration)}`;
-      this.playbackStatusBarItem.tooltip = `Live Code: 播放已暂停 - ${state.speed}x - 点击恢复`;
+      this.playbackStatusBarItem.text = `$(debug-pause) ${formatTime(state.currentTime)}/${formatTime(state.duration)} (${progressPercent}%)`;
+      this.playbackStatusBarItem.tooltip = `Live Code: 播放已暂停\n进度: ${progressPercent}%\n速度: ${state.speed}x\n点击恢复播放`;
       this.playbackStatusBarItem.color = '#ffff00';
       this.playbackStatusBarItem.command = 'live-code-viewer.resumePlayback';
     } else {
-      this.playbackStatusBarItem.text = `$(play) ${formatTime(state.currentTime)}/${formatTime(state.duration)}`;
-      this.playbackStatusBarItem.tooltip = `Live Code: 正在播放 - ${state.speed}x - 点击暂停`;
+      this.playbackStatusBarItem.text = `$(play) ${formatTime(state.currentTime)}/${formatTime(state.duration)} (${progressPercent}%)`;
+      this.playbackStatusBarItem.tooltip = `Live Code: 正在播放\n进度: ${progressPercent}%\n速度: ${state.speed}x\n点击暂停播放`;
       this.playbackStatusBarItem.color = '#00ff00';
       this.playbackStatusBarItem.command = 'live-code-viewer.pausePlayback';
     }

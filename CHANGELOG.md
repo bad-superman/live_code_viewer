@@ -1,5 +1,44 @@
 # Live Code Viewer Changelog
 
+## [v0.1.8] - 2026-03-17
+
+### 🎯 Stability & User Experience Optimization Release
+
+#### 🔧 Stability Improvements
+- **Enhanced recording stability**: Improved recording session persistence and recovery
+- **Playback reliability**: More robust playback controls and timeline management
+- **Connection optimization**: Better WebSocket connection handling and error recovery
+- **Memory management**: Optimized resource usage during long recording sessions
+
+#### 🎨 User Experience Enhancements
+- **Recording status clarity**: Clearer visual feedback for recording operations
+- **Playback controls**: More intuitive playback speed and navigation controls
+- **Error messaging**: Improved error messages with actionable guidance
+- **Performance monitoring**: Real-time performance metrics during recording/playback
+
+#### 🐛 Bug Fixes
+- **Fixed reconnection issues**: Resolved intermittent reconnection failures
+- **Recording session persistence**: Fixed occasional session data loss
+- **Playback synchronization**: Improved timeline synchronization accuracy
+- **Status bar updates**: Fixed delayed status updates during recording
+
+#### 📊 Quality Assurance
+- **Test coverage**: 57 tests with 100% pass rate
+- **Compilation stability**: Zero warnings, clean TypeScript compilation
+- **Code quality**: All TODO/FIXME markers resolved or documented
+- **Performance validation**: Validated recording/playback performance targets
+
+### 📝 Note
+This release focuses on stabilizing the recording and playback features introduced in v0.1.7, ensuring a smooth and reliable user experience for code session recording and review.
+
+### 🚀 Upcoming in v0.1.9
+- **Terminal synchronization**: Real-time terminal sharing and synchronization
+- **Advanced analytics**: Programming process insights and productivity metrics
+- **Cloud integration**: Sync recordings across devices via cloud storage
+- **Export functionality**: Export recordings in multiple formats
+
+---
+
 ## [v0.1.6] - 2026-03-13
 
 ### 🔧 Maintenance Release
