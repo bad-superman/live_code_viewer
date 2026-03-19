@@ -38,7 +38,6 @@ export class Host {
   private isRunning = false;
 
   private terminalIdMap = new Map<vscode.Terminal, number>();
-  private terminalIdToTerminalMap = new Map<number, vscode.Terminal>();
   private nextTerminalId = 1;
 
   constructor(port: number = 3456) {
@@ -122,7 +121,6 @@ export class Host {
     this.server = null;
     this.isRunning = false;
     this.terminalIdMap.clear();
-    this.terminalIdToTerminalMap.clear();
 
     this.statusBarItem.hide();
     vscode.window.showInformationMessage('Live Code: 直播已停止');
@@ -283,14 +281,8 @@ export class Host {
     if (id === undefined) {
       id = this.nextTerminalId++;
       this.terminalIdMap.set(terminal, id);
-      this.terminalIdToTerminalMap.set(id, terminal);
     }
     return id;
-  }
-
-  /** 根据终端ID获取终端对象 */
-  private getTerminalById(terminalId: number): vscode.Terminal | undefined {
-    return this.terminalIdToTerminalMap.get(terminalId);
   }
 
   /** 注册终端相关事件监听 */
@@ -316,7 +308,6 @@ export class Host {
         const id = this.terminalIdMap.get(terminal);
         if (id === undefined) { return; }
         this.terminalIdMap.delete(terminal);
-        this.terminalIdToTerminalMap.delete(id);
         const msg: TerminalCloseMessage = {
           type: MessageType.TerminalClose,
           terminalId: id,
@@ -426,57 +417,24 @@ export class Host {
   private handleTerminalInput(ws: WebSocket, msg: TerminalInputMessage): void {
     console.log(`[Host] Received terminal input for terminal ${msg.terminalId}: ${msg.input.substring(0, 50)}...`);
     
-    // 基本权限检查：确保有用户ID
-    if (!msg.userId) {
-      console.warn(`[Host] Rejected terminal input: missing userId`);
-      const ackMessage: TerminalInputAckMessage = {
-        type: MessageType.TerminalInputAck,
-        terminalId: msg.terminalId,
-        inputId: msg.sessionId || `input-${Date.now()}`,
-        status: 'rejected',
-        reason: '未提供用户ID',
-        timestamp: Date.now()
-      };
-      ws.send(JSON.stringify(ackMessage));
-      return;
-    }
-    
     // 查找对应的终端
-    const terminal = this.getTerminalById(msg.terminalId);
+    // 这里需要将终端ID映射到实际的vscode.Terminal对象
+    // 暂时先记录日志，后续实现
     
     // 发送输入确认
     const ackMessage: TerminalInputAckMessage = {
       type: MessageType.TerminalInputAck,
       terminalId: msg.terminalId,
       inputId: msg.sessionId || `input-${Date.now()}`,
-      status: terminal ? 'accepted' : 'rejected',
-      reason: terminal ? undefined : `终端 ${msg.terminalId} 不存在或已关闭`,
+      status: 'pending', // 暂时设为pending，后续根据实际处理结果更新
       timestamp: Date.now()
     };
     
     ws.send(JSON.stringify(ackMessage));
     
-    if (terminal) {
-      // 实际将输入发送到终端
-      try {
-        terminal.sendText(msg.input);
-        console.log(`[Host] Sent input to terminal ${msg.terminalId} from user ${msg.userId}: ${msg.input}`);
-        
-        // 更新确认状态为已处理
-        ackMessage.status = 'accepted';
-        ackMessage.reason = undefined;
-        ws.send(JSON.stringify(ackMessage));
-      } catch (error) {
-        console.error(`[Host] Failed to send input to terminal ${msg.terminalId}:`, error);
-        
-        // 更新确认状态为失败
-        ackMessage.status = 'rejected';
-        ackMessage.reason = `发送失败: ${error instanceof Error ? error.message : String(error)}`;
-        ws.send(JSON.stringify(ackMessage));
-      }
-    } else {
-      console.warn(`[Host] Terminal ${msg.terminalId} not found`);
-    }
+    // TODO: 实际将输入发送到终端
+    // 这需要将终端ID映射到vscode.Terminal，然后发送输入
+    console.log(`[Host] Would send input to terminal ${msg.terminalId}: ${msg.input}`);
     
     // 广播输入状态给所有客户端
     const statusMessage: TerminalInputStatusMessage = {
@@ -484,7 +442,7 @@ export class Host {
       terminalId: msg.terminalId,
       currentInput: msg.input,
       inputUserId: msg.userId,
-      status: terminal ? 'submitted' : 'idle',
+      status: 'submitted',
       timestamp: Date.now()
     };
     

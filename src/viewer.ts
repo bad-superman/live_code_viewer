@@ -11,11 +11,14 @@ import {
   TerminalCommandMessage,
   TerminalOutputMessage,
   TerminalCommandEndMessage,
+  TerminalInputMessage,
+  TerminalInputAckMessage,
+  TerminalInputStatusMessage,
 } from './protocol';
 import { LiveCodeDocumentProvider } from './virtualDocument';
 import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from './liveCodeTree';
 
-/** 伪终端：在观众端原生终端面板中展示主播终端内容（只读） */
+/** 伪终端：在观众端原生终端面板中展示主播终端内容（支持双向输入） */
 class LiveCodePseudoterminal implements vscode.Pseudoterminal {
   private writeEmitter = new vscode.EventEmitter<string>();
   readonly onDidWrite = this.writeEmitter.event;
@@ -23,12 +26,54 @@ class LiveCodePseudoterminal implements vscode.Pseudoterminal {
   private closeEmitter = new vscode.EventEmitter<number | void>();
   readonly onDidClose = this.closeEmitter.event;
 
+  private inputEmitter = new vscode.EventEmitter<string>();
+  readonly onDidInput = this.inputEmitter.event;
+
+  private terminalId: number;
+  private ws: WebSocket | null = null;
+  private userId: string;
+
+  constructor(terminalId: number, ws?: WebSocket, userId?: string) {
+    this.terminalId = terminalId;
+    this.ws = ws || null;
+    this.userId = userId || 'anonymous';
+  }
+
   open(): void {}
   close(): void {}
 
   /** 向终端写入文本（供外部调用） */
   fire(data: string): void {
     this.writeEmitter.fire(data);
+  }
+
+  /** VS Code伪终端接口：处理用户输入 */
+  handleInput(data: string): void {
+    console.log(`[Pseudoterminal] Received input for terminal ${this.terminalId} from user ${this.userId}: ${data.substring(0, 50)}...`);
+    
+    if (this.ws) {
+      // 发送输入消息到主机
+      const inputMessage: TerminalInputMessage = {
+        type: MessageType.TerminalInput,
+        terminalId: this.terminalId,
+        input: data,
+        timestamp: Date.now(),
+        sessionId: `input-${Date.now()}`,
+        userId: this.userId
+      };
+      
+      this.ws.send(JSON.stringify(inputMessage));
+      console.log(`[Pseudoterminal] Sent input to host for terminal ${this.terminalId} from user ${this.userId}`);
+    } else {
+      console.warn(`[Pseudoterminal] No WebSocket connection for terminal ${this.terminalId}, cannot send input`);
+      // 在终端显示错误信息
+      this.writeEmitter.fire(`\x1b[1;31m[错误: 未连接到主机，无法发送输入]\x1b[0m\r\n`);
+    }
+  }
+
+  /** 设置 WebSocket 连接 */
+  setWebSocket(ws: WebSocket): void {
+    this.ws = ws;
   }
 
   /** 关闭此伪终端 */
@@ -39,6 +84,7 @@ class LiveCodePseudoterminal implements vscode.Pseudoterminal {
   dispose(): void {
     this.writeEmitter.dispose();
     this.closeEmitter.dispose();
+    this.inputEmitter.dispose();
   }
 }
 
@@ -72,6 +118,9 @@ export class Viewer {
   /** 断开连接回调，通知外部清理引用 */
   private _onDisconnectCallback: (() => void) | null = null;
 
+  /** 当前用户ID，用于权限验证 */
+  private userId: string;
+
   constructor(
     documentProvider: LiveCodeDocumentProvider,
     treeProvider: LiveCodeTreeDataProvider | null = null,
@@ -80,6 +129,9 @@ export class Viewer {
     this.documentProvider = documentProvider;
     this.treeProvider = treeProvider;
     this.treeView = treeView;
+    
+    // 生成随机用户ID，格式：viewer-xxxx
+    this.userId = `viewer-${Math.random().toString(36).substring(2, 8)}`;
 
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Left,
@@ -261,6 +313,18 @@ export class Viewer {
       case MessageType.TerminalCommandEnd:
         this.handleTerminalCommandEnd(message);
         break;
+
+      case MessageType.TerminalInput:
+        this.handleTerminalInput(message);
+        break;
+
+      case MessageType.TerminalInputAck:
+        this.handleTerminalInputAck(message);
+        break;
+
+      case MessageType.TerminalInputStatus:
+        this.handleTerminalInputStatus(message);
+        break;
     }
   }
 
@@ -373,7 +437,7 @@ export class Viewer {
   private handleTerminalOpen(msg: TerminalOpenMessage): void {
     if (this.terminalMap.has(msg.terminalId)) { return; }
 
-    const pty = new LiveCodePseudoterminal();
+    const pty = new LiveCodePseudoterminal(msg.terminalId, this.ws || undefined, this.userId);
     const terminal = vscode.window.createTerminal({
       name: `[Live] ${msg.name}`,
       pty,
@@ -409,11 +473,58 @@ export class Viewer {
     }
   }
 
+  /** 处理终端输入消息 - 观众向终端输入命令 */
+  private handleTerminalInput(msg: TerminalInputMessage): void {
+    console.log(`[Viewer] Received terminal input for terminal ${msg.terminalId}: ${msg.input.substring(0, 50)}...`);
+    
+    const entry = this.terminalMap.get(msg.terminalId);
+    if (!entry) {
+      console.warn(`[Viewer] Terminal ${msg.terminalId} not found for input`);
+      return;
+    }
+
+    // 这里应该将输入发送到伪终端
+    // 注意：当前伪终端是只读的，需要扩展为支持输入
+    console.log(`[Viewer] Would send input to terminal ${msg.terminalId}: ${msg.input}`);
+    
+    // TODO: 实现实际的输入处理
+    // 这需要扩展 LiveCodePseudoterminal 类以支持输入
+  }
+
+  /** 处理终端输入确认消息 */
+  private handleTerminalInputAck(msg: TerminalInputAckMessage): void {
+    console.log(`[Viewer] Received terminal input ack for terminal ${msg.terminalId}: ${msg.status}`);
+    
+    // 显示输入确认状态给用户
+    const statusText = {
+      accepted: '✅ 输入已接受',
+      rejected: '❌ 输入被拒绝',
+      pending: '⏳ 输入处理中'
+    }[msg.status];
+
+    if (msg.status === 'rejected' && msg.reason) {
+      vscode.window.showWarningMessage(`终端输入被拒绝: ${msg.reason}`);
+    } else if (msg.status === 'accepted') {
+      vscode.window.showInformationMessage(`终端输入已接受`);
+    }
+  }
+
+  /** 处理终端输入状态消息 */
+  private handleTerminalInputStatus(msg: TerminalInputStatusMessage): void {
+    console.log(`[Viewer] Received terminal input status for terminal ${msg.terminalId}: ${msg.status}`);
+    
+    // 更新终端状态显示
+    // 这里可以更新UI显示当前谁在输入，输入状态等
+    if (msg.inputUserId && msg.currentInput) {
+      console.log(`[Viewer] User ${msg.inputUserId} is ${msg.status} with input: ${msg.currentInput.substring(0, 30)}...`);
+    }
+  }
+
   /** 确保终端存在，不存在时自动创建（处理连接前已有终端的情况） */
   private ensureTerminal(terminalId: number): { pty: LiveCodePseudoterminal; terminal: vscode.Terminal } {
     let entry = this.terminalMap.get(terminalId);
     if (!entry) {
-      const pty = new LiveCodePseudoterminal();
+      const pty = new LiveCodePseudoterminal(terminalId, this.ws || undefined, this.userId);
       const terminal = vscode.window.createTerminal({
         name: `[Live] Terminal ${terminalId}`,
         pty,

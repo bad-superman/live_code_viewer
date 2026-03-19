@@ -28,6 +28,12 @@ export enum MessageType {
   TerminalOutput = 'terminalOutput',
   /** 终端命令执行结束 */
   TerminalCommandEnd = 'terminalCommandEnd',
+  /** 终端输入 - 观众向终端输入命令 */
+  TerminalInput = 'terminalInput',
+  /** 终端输入确认 */
+  TerminalInputAck = 'terminalInputAck',
+  /** 终端输入状态 */
+  TerminalInputStatus = 'terminalInputStatus',
   /** 参与者光标位置同步 */
   CursorSync = 'cursorSync',
   /** 参与者状态更新 */
@@ -119,6 +125,36 @@ export interface TerminalCommandEndMessage {
   exitCode?: number;
 }
 
+/** 终端输入消息 - 观众向终端输入命令 */
+export interface TerminalInputMessage {
+  type: MessageType.TerminalInput;
+  terminalId: number;           // 终端会话ID
+  input: string;                // 输入的命令内容
+  timestamp: number;            // 时间戳
+  userId?: string;              // 用户ID（用于权限管理）
+  sessionId?: string;           // 输入会话ID（用于跟踪）
+}
+
+/** 终端输入确认消息 */
+export interface TerminalInputAckMessage {
+  type: MessageType.TerminalInputAck;
+  terminalId: number;           // 终端会话ID
+  inputId: string;              // 输入消息ID
+  status: 'accepted' | 'rejected' | 'pending';  // 输入状态
+  reason?: string;              // 拒绝原因
+  timestamp: number;            // 时间戳
+}
+
+/** 终端输入状态消息 */
+export interface TerminalInputStatusMessage {
+  type: MessageType.TerminalInputStatus;
+  terminalId: number;           // 终端会话ID
+  currentInput?: string;        // 当前输入内容
+  inputUserId?: string;         // 当前输入用户ID
+  status: 'idle' | 'typing' | 'submitted';  // 输入状态
+  timestamp: number;            // 时间戳
+}
+
 export interface CursorSyncMessage {
   type: MessageType.CursorSync;
   participantId: string;
@@ -151,5 +187,8 @@ export type LiveMessage =
   | TerminalCommandMessage
   | TerminalOutputMessage
   | TerminalCommandEndMessage
+  | TerminalInputMessage
+  | TerminalInputAckMessage
+  | TerminalInputStatusMessage
   | CursorSyncMessage
   | ParticipantStatusMessage;
