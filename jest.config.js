@@ -14,5 +14,8 @@ module.exports = {
     'text',
     'lcov',
     'html'
-  ]
+  ],
+  moduleNameMapper: {
+    '^vscode$': '<rootDir>/__mocks__/vscode.ts'
+  }
 };
