@@ -483,12 +483,16 @@ export class Viewer {
       return;
     }
 
-    // 这里应该将输入发送到伪终端
-    // 注意：当前伪终端是只读的，需要扩展为支持输入
-    console.log(`[Viewer] Would send input to terminal ${msg.terminalId}: ${msg.input}`);
+    // 将输入发送到伪终端显示
+    console.log(`[Viewer] Sending input to terminal ${msg.terminalId}: ${msg.input.substring(0, 50)}${msg.input.length > 50 ? '...' : ''}`);
     
-    // TODO: 实现实际的输入处理
-    // 这需要扩展 LiveCodePseudoterminal 类以支持输入
+    // 将输入发送到伪终端显示
+    try {
+      entry.pty.fire(msg.input);
+      console.log(`[Viewer] Successfully sent input to terminal ${msg.terminalId}`);
+    } catch (error) {
+      console.error(`[Viewer] Failed to send input to terminal ${msg.terminalId}:`, error);
+    }
   }
 
   /** 处理终端输入确认消息 */
