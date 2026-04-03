@@ -21,7 +21,9 @@ import {
   TerminalInputMessage,
   TerminalInputAckMessage,
   TerminalInputStatusMessage,
+  SecurityCheckInfo,
 } from './protocol';
+import { CommandFilter, createStrictCommandFilter } from './security/command-filter';
 
 /**
  * Host 模式 - 主播端
@@ -40,6 +42,7 @@ export class Host {
   private terminalIdMap = new Map<vscode.Terminal, number>();
   private terminalIdToTerminalMap = new Map<number, vscode.Terminal>();
   private nextTerminalId = 1;
+  private commandFilter: CommandFilter;
 
   constructor(port: number = 3456) {
     this.port = port;
@@ -47,6 +50,7 @@ export class Host {
       vscode.StatusBarAlignment.Left,
       100
     );
+    this.commandFilter = createStrictCommandFilter();
   }
 
   async start(): Promise<void> {
@@ -441,6 +445,24 @@ export class Host {
       return;
     }
     
+    // 安全检查：在主机端进行最终验证
+    const securityCheck = this.performSecurityCheck(msg);
+    
+    if (!securityCheck.passed) {
+      console.warn(`[Host] Rejected terminal input: security check failed - ${securityCheck.reason}`);
+      const ackMessage: TerminalInputAckMessage = {
+        type: MessageType.TerminalInputAck,
+        terminalId: msg.terminalId,
+        inputId: msg.sessionId || `input-${Date.now()}`,
+        status: 'rejected',
+        reason: `安全检查失败: ${securityCheck.reason}`,
+        timestamp: Date.now(),
+        securityCheck: securityCheck
+      };
+      ws.send(JSON.stringify(ackMessage));
+      return;
+    }
+    
     // 查找对应的终端
     const terminal = this.getTerminalById(msg.terminalId);
     
@@ -451,7 +473,8 @@ export class Host {
       inputId: msg.sessionId || `input-${Date.now()}`,
       status: terminal ? 'accepted' : 'rejected',
       reason: terminal ? undefined : `终端 ${msg.terminalId} 不存在或已关闭`,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      securityCheck: securityCheck
     };
     
     ws.send(JSON.stringify(ackMessage));
@@ -485,10 +508,62 @@ export class Host {
       currentInput: msg.input,
       inputUserId: msg.userId,
       status: terminal ? 'submitted' : 'idle',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      securityCheck: securityCheck
     };
     
     this.broadcast(statusMessage);
+  }
+
+  /** 执行安全检查 */
+  private performSecurityCheck(msg: TerminalInputMessage): SecurityCheckInfo {
+    // 如果客户端已经进行了安全检查，验证其结果
+    if (msg.securityCheck) {
+      console.log(`[Host] Client performed security check: ${JSON.stringify(msg.securityCheck)}`);
+      
+      // 在主机端进行二次验证
+      const hostCheck = this.commandFilter.checkCommand(msg.input);
+      
+      // 如果客户端检查通过但主机检查不通过，使用主机检查结果
+      if (msg.securityCheck.passed && !hostCheck.allowed) {
+        console.warn(`[Host] Client security check passed but host check failed: ${hostCheck.reason}`);
+        return {
+          passed: false,
+          category: hostCheck.category,
+          reason: `主机端验证失败: ${hostCheck.reason}`,
+          timestamp: Date.now()
+        };
+      }
+      
+      // 如果客户端检查不通过，直接使用客户端结果
+      if (!msg.securityCheck.passed) {
+        return {
+          passed: false,
+          category: msg.securityCheck.category,
+          reason: `客户端安全检查失败: ${msg.securityCheck.reason}`,
+          timestamp: Date.now()
+        };
+      }
+      
+      // 两者都通过，使用客户端检查结果
+      return {
+        passed: true,
+        category: msg.securityCheck.category,
+        reason: msg.securityCheck.reason,
+        timestamp: Date.now()
+      };
+    }
+    
+    // 客户端未进行安全检查，在主机端执行完整检查
+    console.log(`[Host] Performing full security check for command: ${msg.input.substring(0, 50)}...`);
+    const filterResult = this.commandFilter.checkCommand(msg.input);
+    
+    return {
+      passed: filterResult.allowed,
+      category: filterResult.category,
+      reason: filterResult.reason,
+      timestamp: Date.now()
+    };
   }
 
   /** 获取第一个局域网 IPv4 地址 */
