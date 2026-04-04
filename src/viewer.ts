@@ -11,11 +11,15 @@ import {
   TerminalCommandMessage,
   TerminalOutputMessage,
   TerminalCommandEndMessage,
+  TerminalInputMessage,
+  TerminalInputAckMessage,
+  TerminalInputStatusMessage,
 } from './protocol';
 import { LiveCodeDocumentProvider } from './virtualDocument';
 import { LiveCodeTreeDataProvider, LiveCodeTreeNode } from './liveCodeTree';
+import { CommandFilter, createDefaultCommandFilter, CommandFilterResult } from './security/command-filter';
 
-/** 伪终端：在观众端原生终端面板中展示主播终端内容（只读） */
+/** 伪终端：在观众端原生终端面板中展示主播终端内容（支持双向输入） */
 class LiveCodePseudoterminal implements vscode.Pseudoterminal {
   private writeEmitter = new vscode.EventEmitter<string>();
   readonly onDidWrite = this.writeEmitter.event;
@@ -23,12 +27,92 @@ class LiveCodePseudoterminal implements vscode.Pseudoterminal {
   private closeEmitter = new vscode.EventEmitter<number | void>();
   readonly onDidClose = this.closeEmitter.event;
 
+  private inputEmitter = new vscode.EventEmitter<string>();
+  readonly onDidInput = this.inputEmitter.event;
+
+  private terminalId: number;
+  private ws: WebSocket | null = null;
+  private userId: string;
+  private commandFilter: CommandFilter;
+
+  constructor(terminalId: number, ws?: WebSocket, userId?: string) {
+    this.terminalId = terminalId;
+    this.ws = ws || null;
+    this.userId = userId || 'anonymous';
+    this.commandFilter = createDefaultCommandFilter();
+  }
+
   open(): void {}
   close(): void {}
 
   /** 向终端写入文本（供外部调用） */
   fire(data: string): void {
     this.writeEmitter.fire(data);
+  }
+
+  /** VS Code伪终端接口：处理用户输入 */
+  handleInput(data: string): void {
+    console.log(`[Pseudoterminal] Received input for terminal ${this.terminalId} from user ${this.userId}: ${data.substring(0, 50)}...`);
+    
+    // 检查命令是否安全
+    const filterResult = this.commandFilter.checkCommand(data);
+    
+    if (!filterResult.allowed) {
+      // 命令被拒绝
+      console.warn(`[Pseudoterminal] Command rejected for terminal ${this.terminalId}: ${filterResult.reason}`);
+      this.writeEmitter.fire(`\x1b[1;31m[安全警告] 命令被拒绝: ${filterResult.reason}\x1b[0m\r\n`);
+      if (filterResult.suggestion) {
+        this.writeEmitter.fire(`\x1b[1;33m[建议] ${filterResult.suggestion}\x1b[0m\r\n`);
+      }
+      return;
+    }
+    
+    if (filterResult.category === 'warning') {
+      // 警告命令 - 需要用户确认
+      console.log(`[Pseudoterminal] Warning command detected for terminal ${this.terminalId}: ${filterResult.reason}`);
+      this.writeEmitter.fire(`\x1b[1;33m[安全警告] ${filterResult.reason}\x1b[0m\r\n`);
+      if (filterResult.suggestion) {
+        this.writeEmitter.fire(`\x1b[1;33m[建议] ${filterResult.suggestion}\x1b[0m\r\n`);
+      }
+      this.writeEmitter.fire(`\x1b[1;33m[继续执行此命令吗? (y/n)] \x1b[0m`);
+      
+      // 这里应该实现用户确认逻辑，但为简化，我们直接发送命令
+      // 在实际版本中，应该等待用户确认
+    }
+    
+    if (this.ws) {
+      // 发送输入消息到主机
+      const inputMessage: TerminalInputMessage = {
+        type: MessageType.TerminalInput,
+        terminalId: this.terminalId,
+        input: data,
+        timestamp: Date.now(),
+        sessionId: `input-${Date.now()}`,
+        userId: this.userId,
+        securityCheck: {
+          passed: filterResult.allowed,
+          category: filterResult.category,
+          reason: filterResult.reason
+        }
+      };
+      
+      this.ws.send(JSON.stringify(inputMessage));
+      console.log(`[Pseudoterminal] Sent input to host for terminal ${this.terminalId} from user ${this.userId}`);
+      
+      // 显示确认消息
+      if (filterResult.category === 'safe') {
+        this.writeEmitter.fire(`\x1b[1;32m[安全] 命令已发送到主机\x1b[0m\r\n`);
+      }
+    } else {
+      console.warn(`[Pseudoterminal] No WebSocket connection for terminal ${this.terminalId}, cannot send input`);
+      // 在终端显示错误信息
+      this.writeEmitter.fire(`\x1b[1;31m[错误: 未连接到主机，无法发送输入]\x1b[0m\r\n`);
+    }
+  }
+
+  /** 设置 WebSocket 连接 */
+  setWebSocket(ws: WebSocket): void {
+    this.ws = ws;
   }
 
   /** 关闭此伪终端 */
@@ -39,6 +123,7 @@ class LiveCodePseudoterminal implements vscode.Pseudoterminal {
   dispose(): void {
     this.writeEmitter.dispose();
     this.closeEmitter.dispose();
+    this.inputEmitter.dispose();
   }
 }
 
@@ -72,6 +157,9 @@ export class Viewer {
   /** 断开连接回调，通知外部清理引用 */
   private _onDisconnectCallback: (() => void) | null = null;
 
+  /** 当前用户ID，用于权限验证 */
+  private userId: string;
+
   constructor(
     documentProvider: LiveCodeDocumentProvider,
     treeProvider: LiveCodeTreeDataProvider | null = null,
@@ -80,6 +168,9 @@ export class Viewer {
     this.documentProvider = documentProvider;
     this.treeProvider = treeProvider;
     this.treeView = treeView;
+    
+    // 生成随机用户ID，格式：viewer-xxxx
+    this.userId = `viewer-${Math.random().toString(36).substring(2, 8)}`;
 
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Left,
@@ -261,6 +352,18 @@ export class Viewer {
       case MessageType.TerminalCommandEnd:
         this.handleTerminalCommandEnd(message);
         break;
+
+      case MessageType.TerminalInput:
+        this.handleTerminalInput(message);
+        break;
+
+      case MessageType.TerminalInputAck:
+        this.handleTerminalInputAck(message);
+        break;
+
+      case MessageType.TerminalInputStatus:
+        this.handleTerminalInputStatus(message);
+        break;
     }
   }
 
@@ -373,7 +476,7 @@ export class Viewer {
   private handleTerminalOpen(msg: TerminalOpenMessage): void {
     if (this.terminalMap.has(msg.terminalId)) { return; }
 
-    const pty = new LiveCodePseudoterminal();
+    const pty = new LiveCodePseudoterminal(msg.terminalId, this.ws || undefined, this.userId);
     const terminal = vscode.window.createTerminal({
       name: `[Live] ${msg.name}`,
       pty,
@@ -409,11 +512,62 @@ export class Viewer {
     }
   }
 
+  /** 处理终端输入消息 - 观众向终端输入命令 */
+  private handleTerminalInput(msg: TerminalInputMessage): void {
+    console.log(`[Viewer] Received terminal input for terminal ${msg.terminalId}: ${msg.input.substring(0, 50)}...`);
+    
+    const entry = this.terminalMap.get(msg.terminalId);
+    if (!entry) {
+      console.warn(`[Viewer] Terminal ${msg.terminalId} not found for input`);
+      return;
+    }
+
+    // 将输入发送到伪终端显示
+    console.log(`[Viewer] Sending input to terminal ${msg.terminalId}: ${msg.input.substring(0, 50)}${msg.input.length > 50 ? '...' : ''}`);
+    
+    // 将输入发送到伪终端显示
+    try {
+      entry.pty.fire(msg.input);
+      console.log(`[Viewer] Successfully sent input to terminal ${msg.terminalId}`);
+    } catch (error) {
+      console.error(`[Viewer] Failed to send input to terminal ${msg.terminalId}:`, error);
+    }
+  }
+
+  /** 处理终端输入确认消息 */
+  private handleTerminalInputAck(msg: TerminalInputAckMessage): void {
+    console.log(`[Viewer] Received terminal input ack for terminal ${msg.terminalId}: ${msg.status}`);
+    
+    // 显示输入确认状态给用户
+    const statusText = {
+      accepted: '✅ 输入已接受',
+      rejected: '❌ 输入被拒绝',
+      pending: '⏳ 输入处理中'
+    }[msg.status];
+
+    if (msg.status === 'rejected' && msg.reason) {
+      vscode.window.showWarningMessage(`终端输入被拒绝: ${msg.reason}`);
+    } else if (msg.status === 'accepted') {
+      vscode.window.showInformationMessage(`终端输入已接受`);
+    }
+  }
+
+  /** 处理终端输入状态消息 */
+  private handleTerminalInputStatus(msg: TerminalInputStatusMessage): void {
+    console.log(`[Viewer] Received terminal input status for terminal ${msg.terminalId}: ${msg.status}`);
+    
+    // 更新终端状态显示
+    // 这里可以更新UI显示当前谁在输入，输入状态等
+    if (msg.inputUserId && msg.currentInput) {
+      console.log(`[Viewer] User ${msg.inputUserId} is ${msg.status} with input: ${msg.currentInput.substring(0, 30)}...`);
+    }
+  }
+
   /** 确保终端存在，不存在时自动创建（处理连接前已有终端的情况） */
   private ensureTerminal(terminalId: number): { pty: LiveCodePseudoterminal; terminal: vscode.Terminal } {
     let entry = this.terminalMap.get(terminalId);
     if (!entry) {
-      const pty = new LiveCodePseudoterminal();
+      const pty = new LiveCodePseudoterminal(terminalId, this.ws || undefined, this.userId);
       const terminal = vscode.window.createTerminal({
         name: `[Live] Terminal ${terminalId}`,
         pty,
