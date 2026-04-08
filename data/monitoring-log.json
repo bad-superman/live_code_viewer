@@ -1740,6 +1740,39 @@
           "优化冲突解决算法"
         ]
       }
+    },
+    {
+      "timestamp": "2026-04-08T13:23:18.893Z",
+      "stats": {
+        "timestamp": "2026-04-08T13:23:18.893Z",
+        "downloads": 168,
+        "installs": 22,
+        "rating": 5,
+        "ratingCount": 1,
+        "updates": 3
+      },
+      "trends": {
+        "downloadGrowth": 121,
+        "installGrowth": 16,
+        "trend": "growing"
+      },
+      "alerts": [
+        {
+          "level": "info",
+          "message": "用户增长加速: +121 下载, +16 安装",
+          "timestamp": "2026-04-08T13:23:18.893Z"
+        },
+        {
+          "level": "milestone",
+          "message": "🎉 达成50次下载里程碑！",
+          "timestamp": "2026-04-08T13:23:18.893Z"
+        },
+        {
+          "level": "milestone",
+          "message": "🎉 达成10次安装里程碑！",
+          "timestamp": "2026-04-08T13:23:18.893Z"
+        }
+      ]
     }
   ]
 }
