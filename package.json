@@ -2,7 +2,7 @@
   "name": "live-code-viewer",
   "displayName": "Live Code Viewer",
   "description": "局域网实时协作编程 - 基础维护版，保证现有功能稳定性，为终端共享功能做准备",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "RoyKou",
   "repository": {
     "type": "git",
@@ -94,6 +94,18 @@
       {
         "command": "live-code-viewer.listSessions",
         "title": "Live Code: List Sessions"
+      },
+      {
+        "command": "live-code-viewer.showSettings",
+        "title": "Live Code: Show Settings"
+      },
+      {
+        "command": "live-code-viewer.showAbout",
+        "title": "Live Code: Show About"
+      },
+      {
+        "command": "live-code-viewer.showTutorial",
+        "title": "Live Code: Show Tutorial"
       }
     ],
     "configuration": {

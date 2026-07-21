@@ -1,12 +1,20 @@
 import * as vscode from 'vscode';
 import { AppManager } from './core/app-manager';
 import { RoomPanel } from './ui/room-panel';
+import { SettingsPanel } from './ui/settings-panel';
+import { AboutPanel } from './ui/about-panel';
+import { TutorialPanel } from './ui/tutorial-panel';
 
 let appManager: AppManager | null = null;
+let settingsPanel: SettingsPanel | undefined;
+let aboutPanel: AboutPanel | undefined;
+let tutorialPanel: TutorialPanel | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
   // 初始化应用管理器
   appManager = new AppManager(context);
+
+  const version = context.extension?.packageJSON?.version || '0.2.2';
 
   // ============ Host 命令 ============
 
@@ -267,7 +275,13 @@ export function activate(context: vscode.ExtensionContext) {
       'live-code-viewer.startRecording',
       async () => {
         if (!appManager) return;
-        await appManager.startRecording();
+        try {
+          await appManager.startRecording();
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `Live Code: 开始录制失败 - ${error.message}`
+          );
+        }
       }
     )
   );
@@ -277,7 +291,13 @@ export function activate(context: vscode.ExtensionContext) {
       'live-code-viewer.stopRecording',
       async () => {
         if (!appManager) return;
-        await appManager.stopRecording();
+        try {
+          await appManager.stopRecording();
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `Live Code: 停止录制失败 - ${error.message}`
+          );
+        }
       }
     )
   );
@@ -287,7 +307,13 @@ export function activate(context: vscode.ExtensionContext) {
       'live-code-viewer.pauseRecording',
       async () => {
         if (!appManager) return;
-        await appManager.pauseRecording();
+        try {
+          await appManager.pauseRecording();
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `Live Code: 暂停录制失败 - ${error.message}`
+          );
+        }
       }
     )
   );
@@ -297,7 +323,13 @@ export function activate(context: vscode.ExtensionContext) {
       'live-code-viewer.resumeRecording',
       async () => {
         if (!appManager) return;
-        await appManager.resumeRecording();
+        try {
+          await appManager.resumeRecording();
+        } catch (error: any) {
+          vscode.window.showErrorMessage(
+            `Live Code: 恢复录制失败 - ${error.message}`
+          );
+        }
       }
     )
   );
@@ -399,7 +431,46 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  console.log('Live Code Viewer v0.1.0 已激活 - 模块化架构');
+  // ============ v0.2.2 新增命令 ============
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showSettings',
+      () => {
+        if (!appManager) return;
+        if (!settingsPanel) {
+          settingsPanel = new SettingsPanel(context);
+        }
+        settingsPanel.show();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showAbout',
+      () => {
+        if (!aboutPanel) {
+          aboutPanel = new AboutPanel(context);
+        }
+        aboutPanel.show();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'live-code-viewer.showTutorial',
+      () => {
+        if (!tutorialPanel) {
+          tutorialPanel = new TutorialPanel(context);
+        }
+        tutorialPanel.show();
+      }
+    )
+  );
+
+  console.log(`Live Code Viewer v${version} 已激活 - 模块化架构`);
 }
 
 export function deactivate() {
